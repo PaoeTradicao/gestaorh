@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>RH — Pão &amp; Tradição</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --azul:#13215E; --azul-2:#1c2f7a; --ouro:#EFAD4C; --ouro-claro:#F7CC85; --creme:#F5F0DC;
+  --branco:#fff; --fundo:#faf9f6; --borda:#ece7db; --borda-forte:#ddd6c4;
+  --texto-2:#6b7280; --verde:#1D9E75; --vermelho:#C0392B; --azul-info:#2E6FCC;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Inter',sans-serif;background:var(--fundo);color:var(--azul);min-height:100vh;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:'Playfair Display',serif;font-weight:600;color:var(--azul);margin:0}
+a{color:inherit}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-thumb{background:var(--borda-forte);border-radius:4px}
+
+/* ===== LOGIN ===== */
+#login-screen{position:fixed;inset:0;background:linear-gradient(160deg,var(--azul),#0b1440);display:flex;align-items:center;justify-content:center;z-index:100}
+#login-screen.hidden{display:none}
+.login-box{background:var(--branco);border-radius:18px;padding:2.4rem 2.2rem;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.login-title{font-size:1.5rem;text-align:center}
+.login-sub{text-align:center;color:var(--texto-2);font-size:.78rem;text-transform:uppercase;letter-spacing:.12em;margin-top:4px}
+.login-div{height:2px;background:linear-gradient(90deg,transparent,var(--ouro),transparent);margin:1.3rem 0}
+.login-box input{width:100%;padding:11px 13px;border:1px solid var(--borda-forte);border-radius:9px;font-size:.95rem;margin-bottom:1rem}
+.login-box input:focus{outline:none;border-color:var(--ouro)}
+.login-btn{width:100%;padding:11px;border:none;border-radius:9px;background:var(--azul);color:#fff;font-weight:600;font-size:.92rem;cursor:pointer}
+.login-btn:hover{opacity:.9}
+.login-erro{color:var(--vermelho);font-size:.8rem;text-align:center;margin-top:8px;display:none}
+
+/* ===== APP SHELL ===== */
+#app{display:none}
+#app.show{display:flex;min-height:100vh}
+#sidebar{width:252px;background:var(--branco);border-right:1px solid var(--borda);display:flex;flex-direction:column;flex-shrink:0;transition:width .18s;overflow:hidden}
+#sidebar.collapsed{width:68px}
+.sb-head{display:flex;align-items:center;gap:.6rem;padding:1.1rem .9rem;border-bottom:1px solid var(--borda)}
+.sb-brand{font-family:'Playfair Display',serif;font-weight:600;font-size:.86rem;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
+#sidebar.collapsed .sb-brand,#sidebar.collapsed .nav-label{display:none}
+#sidebar.collapsed .sb-toggle{transform:rotate(180deg)}
+.sb-badge{width:34px;height:34px;border-radius:50%;background:var(--branco);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;border:1px solid var(--borda)}
+.sb-badge img{width:100%;height:100%;object-fit:cover}
+.sb-toggle{background:none;border:none;cursor:pointer;color:var(--texto-2);padding:4px;flex-shrink:0;display:flex;transition:transform .18s}
+.sb-toggle svg{width:16px;height:16px}
+.nav{flex:1;padding:.8rem;overflow-y:auto;overflow-x:hidden}
+.nav-item{display:flex;align-items:center;gap:.75rem;padding:.65rem .75rem;border-radius:9px;cursor:pointer;color:var(--azul);font-size:.87rem;font-weight:500;margin-bottom:2px;white-space:nowrap}
+.nav-item:hover{background:var(--fundo)}
+.nav-item.active{background:var(--creme);color:var(--azul)}
+.nav-ico{width:19px;height:19px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.nav-ico svg{width:17px;height:17px}
+.sb-foot{padding:.9rem;border-top:1px solid var(--borda)}
+.sb-sair{display:flex;align-items:center;gap:.75rem;color:var(--texto-2);font-size:.85rem;cursor:pointer;padding:.5rem .75rem;border-radius:9px}
+.sb-sair:hover{background:var(--fundo)}
+
+#main{flex:1;padding:1.8rem 2.2rem;overflow-x:hidden}
+.top-title{font-size:1.55rem}
+.top-sub{color:var(--texto-2);font-size:.85rem;margin-top:2px}
+.sync-tag{display:inline-flex;align-items:center;gap:5px;font-size:.72rem;color:var(--verde);margin-top:6px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--verde)}
+
+.view{display:none}
+.view.active{display:block}
+
+/* ===== CARDS ===== */
+.card{background:var(--branco);border:1px solid var(--borda);border-radius:14px;padding:1.3rem 1.4rem;margin-bottom:1.3rem}
+.card-title{font-size:1.05rem;margin-bottom:1rem}
+.grid-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1.4rem}
+.mini-card{background:var(--branco);border:1px solid var(--borda);border-radius:14px;padding:1.1rem 1.2rem;border-top:3px solid var(--ouro)}
+.mini-card.alerta{border-top-color:var(--vermelho)}
+.mini-card.ok{border-top-color:var(--verde)}
+.mini-card .lbl{font-size:.76rem;color:var(--texto-2);text-transform:uppercase;letter-spacing:.04em}
+.mini-card .val{font-size:1.7rem;font-family:'Playfair Display',serif;font-weight:600;margin-top:2px}
+
+/* ===== FORM ===== */
+.form-row{margin-bottom:.9rem}
+.form-row label{display:block;font-size:.76rem;font-weight:600;color:var(--azul);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem}
+.form-row input,.form-row select,.form-row textarea{width:100%;padding:9px 11px;border:1px solid var(--borda-forte);border-radius:8px;font-family:'Inter',sans-serif;font-size:.9rem;color:var(--azul);background:#fff}
+.form-row input:focus,.form-row select:focus,.form-row textarea:focus{outline:none;border-color:var(--ouro)}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0 1rem}
+
+.btn{padding:9px 17px;border:none;border-radius:8px;font-weight:600;font-size:.85rem;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.btn-azul{background:var(--azul);color:#fff}
+.btn-azul:hover{opacity:.9}
+.btn-ouro{background:var(--ouro);color:var(--azul)}
+.btn-ouro:hover{opacity:.9}
+.btn-outline{background:transparent;border:1px solid var(--borda-forte);color:var(--azul)}
+.btn-outline:hover{background:var(--fundo)}
+.btn-wpp{background:#25D366;color:#fff}
+.btn-wpp:hover{opacity:.9}
+.btn-sm{padding:6px 11px;font-size:.76rem}
+.btn-mural{background:var(--ouro);color:var(--azul);border-radius:22px;padding:9px 22px}
+.btn-mural:hover{background:var(--ouro-claro)}
+
+/* ===== TABLE / LISTS ===== */
+table{width:100%;border-collapse:collapse;font-size:.87rem}
+th{text-align:left;color:var(--texto-2);font-weight:600;font-size:.74rem;text-transform:uppercase;letter-spacing:.03em;padding:8px 10px;border-bottom:1px solid var(--borda)}
+td{padding:10px;border-bottom:1px solid var(--borda)}
+tr:hover td{background:var(--fundo)}
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:.72rem;font-weight:600}
+.badge-ativo{background:#e3f6ee;color:var(--verde)}
+.badge-desligado{background:#fbe8e6;color:var(--vermelho)}
+.badge-pendente{background:#fdf1dd;color:#a06a12}
+
+/* ===== MURAL ===== */
+.mural-form{display:flex;gap:.6rem;margin-bottom:1.1rem;flex-wrap:wrap}
+.mural-form input{flex:0 0 160px}
+.mural-form input.msg{flex:1;min-width:220px}
+.mural-item{padding:.85rem 0;border-bottom:1px solid var(--borda)}
+.mural-item:last-child{border-bottom:none}
+.mural-item .nome{font-weight:600;color:var(--azul);font-size:.87rem}
+.mural-item .data{color:var(--texto-2);font-size:.72rem;margin-left:6px}
+.mural-item .msg{margin-top:2px;font-size:.9rem}
+.mural-item .editado-tag{color:var(--texto-2);font-size:.7rem;font-style:italic;margin-left:5px}
+.mural-acoes{margin-top:5px;display:flex;gap:.9rem}
+.mural-acao{background:none;border:none;padding:0;font-size:.72rem;color:var(--texto-2);cursor:pointer;text-decoration:underline}
+.mural-acao:hover{color:var(--azul)}
+.mural-vazio{color:var(--texto-2);text-align:center;padding:1.5rem 0;font-size:.87rem}
+
+/* ===== MODAL ===== */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(19,33,94,.45);z-index:80;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.aberto{display:flex}
+.modal-box{background:#fff;border-radius:16px;padding:1.6rem 1.7rem;width:100%;max-width:640px;max-height:88vh;overflow-y:auto}
+.modal-box.wide{max-width:820px}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.1rem}
+.modal-close{background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--texto-2)}
+
+/* ===== TIMELINE ===== */
+.tl{list-style:none;padding:0;margin:0}
+.tl-item{display:flex;gap:.9rem;padding:.8rem 0;border-bottom:1px solid var(--borda)}
+.tl-item:last-child{border-bottom:none}
+.tl-dot{width:26px;height:26px;border-radius:50%;background:var(--borda);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.75rem;color:#fff}
+.tl-dot.feita{background:var(--verde)}
+.tl-body{flex:1}
+.tl-titulo{font-weight:600;font-size:.88rem}
+.tl-data{color:var(--texto-2);font-size:.78rem;margin-top:2px}
+.tl-item input[type=date]{margin-top:5px;padding:5px 8px;border:1px solid var(--borda-forte);border-radius:6px;font-size:.8rem}
+
+/* tabs dentro do funcionário */
+.tabs{display:flex;gap:.4rem;margin-bottom:1.1rem;border-bottom:1px solid var(--borda)}
+.tab-btn{padding:.6rem 1rem;background:none;border:none;cursor:pointer;font-size:.85rem;font-weight:600;color:var(--texto-2);border-bottom:2px solid transparent}
+.tab-btn.active{color:var(--azul);border-bottom-color:var(--ouro)}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+
+.toast{position:fixed;bottom:22px;right:22px;background:var(--azul);color:#fff;padding:11px 18px;border-radius:9px;font-size:.85rem;z-index:200;opacity:0;transform:translateY(10px);transition:all .25s}
+.toast.show{opacity:1;transform:translateY(0)}
+
+.alerta-linha{display:flex;justify-content:space-between;align-items:center;padding:.7rem 0;border-bottom:1px solid var(--borda);gap:1rem;flex-wrap:wrap}
+.alerta-linha:last-child{border-bottom:none}
+.alerta-txt{font-size:.87rem}
+.alerta-txt b{color:var(--azul)}
+.vazio{color:var(--texto-2);text-align:center;padding:1.4rem 0;font-size:.87rem}
+
+@media(max-width:820px){
+  #sidebar{position:fixed;left:0;top:0;bottom:0;z-index:70;transform:translateX(-100%)}
+  #sidebar.mobile-open{transform:translateX(0)}
+  #main{padding:1.2rem}
+}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-title">RH</div>
+    <div class="login-sub">Pão &amp; Tradição</div>
+    <div class="login-div"></div>
+    <input type="password" id="login-senha" placeholder="Senha de acesso" onkeydown="if(event.key==='Enter')fazerLogin()">
+    <button class="login-btn" onclick="fazerLogin()">Entrar</button>
+    <div class="login-erro" id="login-erro">Senha incorreta.</div>
+  </div>
+</div>
+
+<div id="app">
+  <div id="sidebar">
+    <div class="sb-head">
+      <div class="sb-badge"><img src="data:image/jpeg;base64,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" alt="Pão & Tradição"></div>
+      <div class="sb-brand">Pão &amp; Tradição</div>
+      <button class="sb-toggle" onclick="toggleSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+    </div>
+    <div class="nav" id="nav">
+      <div class="nav-item active" data-view="dashboard" onclick="irPara('dashboard')"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"></path><path d="M5 10v10h14V10"></path></svg></span><span class="nav-label">Dashboard</span></div>
+      <div class="nav-item" data-view="funcionarios" onclick="irPara('funcionarios')"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 19c0-3.3 2.5-5.5 5.5-5.5s5.5 2.2 5.5 5.5"></path><circle cx="17" cy="8.5" r="2.4"></circle><path d="M15.8 13.7c2.5.3 4.2 2.3 4.2 5.3"></path></svg></span><span class="nav-label">Funcionários</span></div>
+      <div class="nav-item" data-view="ocorrencias" onclick="irPara('ocorrencias')"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"></rect><path d="M9 3.5h6v2H9z"></path><path d="M8 11h8M8 14.5h8M8 18h5"></path></svg></span><span class="nav-label">Ocorrências</span></div>
+      <div class="nav-item" data-view="ferias" onclick="irPara('ferias')"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2.5v2.4M12 19.1v2.4M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"></path></svg></span><span class="nav-label">Férias</span></div>
+      <div class="nav-item" data-view="mural" onclick="irPara('mural')"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5.5" width="17" height="13" rx="2"></rect><path d="M4.5 7l7.5 6 7.5-6"></path></svg></span><span class="nav-label">Mural</span></div>
+      <div class="nav-item" data-view="config" onclick="irPara('config')"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 13.5a7.6 7.6 0 000-3l2-1.5-2-3.5-2.4 1a7.4 7.4 0 00-2.6-1.5L14 2h-4l-.4 2.5a7.4 7.4 0 00-2.6 1.5l-2.4-1-2 3.5 2 1.5a7.6 7.6 0 000 3l-2 1.5 2 3.5 2.4-1c.8.65 1.65 1.15 2.6 1.5L10 22h4l.4-2.5a7.4 7.4 0 002.6-1.5l2.4 1 2-3.5z"></path></svg></span><span class="nav-label">Configurações</span></div>
+    </div>
+    <div class="sb-foot">
+      <div class="sb-sair" onclick="sair()"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v9"></path><path d="M18 6.3a8 8 0 11-12 0"></path></svg></span><span class="nav-label">Sair</span></div>
+    </div>
+  </div>
+
+  <div id="main">
+
+    <!-- DASHBOARD -->
+    <div class="view active" id="view-dashboard">
+      <h1 class="top-title">Dashboard</h1>
+      <div class="top-sub">Recursos Humanos · Pão &amp; Tradição</div>
+      <div class="sync-tag"><span class="dot"></span> Sincronizado</div>
+
+      <div class="grid-cards" style="margin-top:1.4rem" id="dash-cards"></div>
+
+      <div class="card">
+        <div class="card-title">Avisos e pendências</div>
+        <div id="dash-alertas"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Mural de recados</div>
+        <div class="mural-form">
+          <input type="text" id="mural-nome-dash" placeholder="Seu nome">
+          <input type="text" class="msg" id="mural-msg-dash" placeholder="Escreva um recado para o próximo turno...">
+          <button class="btn btn-mural" onclick="postarMural('dash')">Postar</button>
+        </div>
+        <div id="mural-lista-dash"></div>
+      </div>
+    </div>
+
+    <!-- FUNCIONARIOS -->
+    <div class="view" id="view-funcionarios">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.6rem">
+        <div>
+          <h1 class="top-title">Funcionários</h1>
+          <div class="top-sub">Cadastro e ficha completa</div>
+        </div>
+        <button class="btn btn-azul" onclick="abrirNovoFuncionario()">+ Novo funcionário</button>
+      </div>
+
+      <div class="card" style="margin-top:1.3rem">
+        <div style="display:flex;gap:.6rem;margin-bottom:1rem;flex-wrap:wrap">
+          <input type="text" id="func-busca" placeholder="Buscar por nome..." style="flex:1;min-width:200px;padding:9px 11px;border:1px solid var(--borda-forte);border-radius:8px" oninput="renderFuncionarios()">
+          <select id="func-filtro-status" onchange="renderFuncionarios()" style="padding:9px 11px;border:1px solid var(--borda-forte);border-radius:8px">
+            <option value="">Todos os status</option>
+            <option value="ativo">Ativo</option>
+            <option value="contratando">Em contratação</option>
+            <option value="desligado">Desligado</option>
+          </select>
+        </div>
+        <table>
+          <thead><tr><th>Nome</th><th>Cargo</th><th>Setor</th><th>Admissão</th><th>Status</th><th></th></tr></thead>
+          <tbody id="func-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- OCORRENCIAS -->
+    <div class="view" id="view-ocorrencias">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.6rem">
+        <div>
+          <h1 class="top-title">Ocorrências</h1>
+          <div class="top-sub">Atestados, suspensões, afastamentos e rescisões</div>
+        </div>
+        <button class="btn btn-azul" onclick="abrirNovaOcorrencia()">+ Lançar ocorrência</button>
+      </div>
+
+      <div class="card" style="margin-top:1.3rem">
+        <div style="display:flex;gap:.6rem;margin-bottom:1rem;flex-wrap:wrap">
+          <select id="ocor-filtro-tipo" onchange="renderOcorrencias()" style="padding:9px 11px;border:1px solid var(--borda-forte);border-radius:8px">
+            <option value="">Todos os tipos</option>
+            <option value="atestado">Atestado</option>
+            <option value="suspensao">Suspensão</option>
+            <option value="afastamento">Afastamento</option>
+            <option value="rescisao">Rescisão</option>
+          </select>
+        </div>
+        <table>
+          <thead><tr><th>Funcionário</th><th>Tipo</th><th>Início</th><th>Fim/Previsão</th><th>Motivo</th><th></th></tr></thead>
+          <tbody id="ocor-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- FERIAS -->
+    <div class="view" id="view-ferias">
+      <h1 class="top-title">Férias</h1>
+      <div class="top-sub">Controle de vencimento por funcionário</div>
+      <div class="card" style="margin-top:1.3rem;background:var(--creme);font-size:.84rem;line-height:1.5">
+        <b>Como funciona o cálculo:</b> o período aquisitivo começa na data de admissão e vence 12 meses depois.
+        Quando faltam 30 dias ou menos para o vencimento, o funcionário entra no alerta de "Férias vencendo" no Dashboard, com link pronto de WhatsApp.
+        Se as férias já foram gozadas em outro momento (fora do sistema), ajuste a data de "Início do período" na tabela abaixo ou clique em "Registrar gozo" para avançar automaticamente 12 meses a partir do vencimento atual.
+      </div>
+      <div class="card">
+        <table>
+          <thead><tr><th>Funcionário</th><th>Admissão</th><th>Início do período</th><th>Vencimento</th><th>Situação</th><th></th></tr></thead>
+          <tbody id="ferias-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- MURAL -->
+    <div class="view" id="view-mural">
+      <h1 class="top-title">Mural de recados</h1>
+      <div class="top-sub">Comunicação entre turnos e setores</div>
+      <div class="card" style="margin-top:1.3rem">
+        <div class="mural-form">
+          <input type="text" id="mural-nome" placeholder="Seu nome">
+          <input type="text" class="msg" id="mural-msg" placeholder="Escreva um recado para o próximo turno...">
+          <button class="btn btn-mural" onclick="postarMural('full')">Postar</button>
+        </div>
+        <div id="mural-lista-full"></div>
+      </div>
+    </div>
+
+    <!-- CONFIG -->
+    <div class="view" id="view-config">
+      <h1 class="top-title">Configurações</h1>
+      <div class="top-sub">Senha de acesso e preferências</div>
+      <div class="card" style="margin-top:1.3rem;max-width:420px">
+        <div class="card-title">Alterar senha de acesso</div>
+        <div class="form-row"><label>Nova senha</label><input type="password" id="nova-senha"></div>
+        <button class="btn btn-azul" onclick="alterarSenha()">Salvar nova senha</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL FUNCIONARIO -->
+<div class="modal-overlay" id="modal-func">
+  <div class="modal-box wide">
+    <div class="modal-head">
+      <h2 id="modal-func-titulo">Novo funcionário</h2>
+      <button class="modal-close" onclick="fecharModal('modal-func')">✕</button>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="dados" onclick="mudarTab('dados')">Ficha</button>
+      <button class="tab-btn" data-tab="entrevista" onclick="mudarTab('entrevista')">Entrevista</button>
+      <button class="tab-btn" data-tab="timeline" onclick="mudarTab('timeline')">Contratação</button>
+      <button class="tab-btn" data-tab="historico" onclick="mudarTab('historico')">Ocorrências</button>
+    </div>
+
+    <div class="tab-pane active" id="tab-dados">
+      <input type="hidden" id="f-id">
+      <div class="form-grid">
+        <div class="form-row"><label>Nome completo</label><input id="f-nome"></div>
+        <div class="form-row"><label>Cargo</label><input id="f-cargo"></div>
+        <div class="form-row"><label>Setor</label><input id="f-setor"></div>
+        <div class="form-row"><label>Data de admissão</label><input type="date" id="f-admissao"></div>
+        <div class="form-row"><label>Data de nascimento</label><input type="date" id="f-nascimento"></div>
+        <div class="form-row"><label>Telefone / WhatsApp</label><input id="f-telefone" placeholder="21999999999"></div>
+        <div class="form-row"><label>E-mail</label><input id="f-email"></div>
+        <div class="form-row"><label>CPF</label><input id="f-cpf"></div>
+        <div class="form-row"><label>Chave PIX</label><input id="f-pix"></div>
+        <div class="form-row"><label>Status</label>
+          <select id="f-status">
+            <option value="contratando">Em contratação</option>
+            <option value="ativo">Ativo</option>
+            <option value="desligado">Desligado</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row"><label>Endereço</label><textarea id="f-endereco" rows="2"></textarea></div>
+      <div style="display:flex;justify-content:flex-end;gap:.6rem;margin-top:.6rem">
+        <button class="btn btn-outline" onclick="fecharModal('modal-func')">Cancelar</button>
+        <button class="btn btn-azul" onclick="salvarFuncionario()">Salvar</button>
+      </div>
+    </div>
+
+    <div class="tab-pane" id="tab-entrevista">
+      <div class="form-grid">
+        <div class="form-row"><label>Data da entrevista</label><input type="date" id="e-data"></div>
+        <div class="form-row"><label>Entrevistador</label><input id="e-entrevistador"></div>
+        <div class="form-row"><label>Como chegou até nós</label>
+          <select id="e-origem">
+            <option value="">—</option>
+            <option>Indicação</option>
+            <option>Anúncio/vaga divulgada</option>
+            <option>Redes sociais</option>
+            <option>Banco de currículos</option>
+            <option>Procura espontânea</option>
+            <option>Outro</option>
+          </select>
+        </div>
+        <div class="form-row"><label>Indicado por</label><input id="e-indicado"></div>
+        <div class="form-row"><label>Escolaridade</label>
+          <select id="e-escolaridade">
+            <option value="">—</option>
+            <option>Fundamental incompleto</option>
+            <option>Fundamental completo</option>
+            <option>Médio incompleto</option>
+            <option>Médio completo</option>
+            <option>Superior incompleto</option>
+            <option>Superior completo</option>
+          </select>
+        </div>
+        <div class="form-row"><label>Estado civil</label>
+          <select id="e-estadocivil">
+            <option value="">—</option>
+            <option>Solteiro(a)</option>
+            <option>Casado(a)</option>
+            <option>União estável</option>
+            <option>Divorciado(a)</option>
+            <option>Viúvo(a)</option>
+          </select>
+        </div>
+        <div class="form-row"><label>Filhos/dependentes</label><input type="number" min="0" id="e-dependentes"></div>
+        <div class="form-row"><label>Pretensão salarial</label><input id="e-pretensao" placeholder="R$"></div>
+        <div class="form-row"><label>Disponibilidade</label><input id="e-disponibilidade" placeholder="Ex: integral, seg a sáb"></div>
+        <div class="form-row"><label>CNH / veículo próprio</label>
+          <select id="e-cnh">
+            <option value="">—</option>
+            <option>Não possui</option>
+            <option>CNH sem veículo</option>
+            <option>CNH e veículo próprio</option>
+          </select>
+        </div>
+        <div class="form-row"><label>Avaliação geral</label>
+          <select id="e-avaliacao">
+            <option value="">—</option>
+            <option>Ótimo</option>
+            <option>Bom</option>
+            <option>Regular</option>
+            <option>Fraco</option>
+          </select>
+        </div>
+        <div class="form-row"><label>Decisão</label>
+          <select id="e-decisao">
+            <option value="">—</option>
+            <option>Aprovado para contratação</option>
+            <option>Banco de talentos</option>
+            <option>Reprovado</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row"><label>Experiência anterior relevante</label><textarea id="e-experiencia" rows="2"></textarea></div>
+      <div class="form-row"><label>Referências profissionais</label><textarea id="e-referencias" rows="2"></textarea></div>
+      <div class="form-row"><label>Pontos fortes observados</label><textarea id="e-pontosfortes" rows="2"></textarea></div>
+      <div class="form-row"><label>Pontos de atenção</label><textarea id="e-pontosatencao" rows="2"></textarea></div>
+      <div class="form-row"><label>Observações gerais</label><textarea id="e-obs" rows="2"></textarea></div>
+      <div style="display:flex;justify-content:flex-end;gap:.6rem;margin-top:.6rem">
+        <button class="btn btn-outline" onclick="fecharModal('modal-func')">Cancelar</button>
+        <button class="btn btn-azul" onclick="salvarFuncionario()">Salvar</button>
+      </div>
+    </div>
+
+    <div class="tab-pane" id="tab-timeline">
+      <ul class="tl" id="tl-lista"></ul>
+    </div>
+
+    <div class="tab-pane" id="tab-historico">
+      <table>
+        <thead><tr><th>Tipo</th><th>Início</th><th>Fim/Previsão</th><th>Motivo</th></tr></thead>
+        <tbody id="hist-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL OCORRENCIA -->
+<div class="modal-overlay" id="modal-ocor">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Lançar ocorrência</h2>
+      <button class="modal-close" onclick="fecharModal('modal-ocor')">✕</button>
+    </div>
+    <div class="form-row">
+      <label>Funcionário</label>
+      <select id="o-funcionario"></select>
+    </div>
+    <div class="form-row">
+      <label>Tipo</label>
+      <select id="o-tipo" onchange="atualizarCamposOcorrencia()">
+        <option value="atestado">Atestado</option>
+        <option value="suspensao">Suspensão</option>
+        <option value="afastamento">Afastamento</option>
+        <option value="rescisao">Rescisão</option>
+      </select>
+    </div>
+    <div class="form-grid">
+      <div class="form-row"><label id="o-lbl-inicio">Data de início</label><input type="date" id="o-inicio"></div>
+      <div class="form-row" id="o-fim-wrap"><label>Data de fim / previsão de retorno</label><input type="date" id="o-fim"></div>
+    </div>
+    <div class="form-row"><label>Motivo / observação</label><textarea id="o-motivo" rows="2"></textarea></div>
+    <div id="o-info-rescisao" style="display:none;background:var(--creme);border-radius:9px;padding:.8rem 1rem;font-size:.85rem;margin-bottom:.8rem"></div>
+    <div style="display:flex;justify-content:flex-end;gap:.6rem">
+      <button class="btn btn-outline" onclick="fecharModal('modal-ocor')">Cancelar</button>
+      <button class="btn btn-azul" onclick="salvarOcorrencia()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBV5WEkyzLL6bGBKGDVitgDAh8WO8SF76o",
+    authDomain: "gestaopaoetradicao.firebaseapp.com",
+    projectId: "gestaopaoetradicao",
+    storageBucket: "gestaopaoetradicao.firebasestorage.app",
+    messagingSenderId: "210403075049",
+    appId: "1:210403075049:web:fb5faf47044510ced02178"
+  };
+  const fbApp = initializeApp(firebaseConfig);
+  const dbFirestore = getFirestore(fbApp);
+  const fbAuth = getAuth(fbApp);
+  let authPronto = false;
+  onAuthStateChanged(fbAuth, function(user){
+    if(user){ authPronto = true; }
+  });
+  signInAnonymously(fbAuth).catch(function(e){ console.warn('Auth anônima falhou:', e.message); });
+
+  function aguardarAuth(timeoutMs){
+    return new Promise(function(resolve){
+      if(authPronto) return resolve(true);
+      const t0 = Date.now();
+      const iv = setInterval(function(){
+        if(authPronto || Date.now()-t0>timeoutMs){ clearInterval(iv); resolve(authPronto); }
+      }, 100);
+    });
+  }
+
+  window.firestoreSalvar = async function(chave, dados){
+    try{
+      await aguardarAuth(4000);
+      await setDoc(doc(dbFirestore, "rh", chave), { valor: JSON.stringify(dados), atualizadoEm: new Date().toISOString() });
+      return true;
+    }catch(e){ console.warn("Erro ao salvar no Firestore:", e.message); return false; }
+  };
+  window.firestoreCarregar = async function(chave){
+    try{
+      await aguardarAuth(4000);
+      const snap = await getDoc(doc(dbFirestore, "rh", chave));
+      if(!snap.exists()) return null;
+      return JSON.parse(snap.data().valor);
+    }catch(e){ console.warn("Erro ao carregar do Firestore:", e.message); return null; }
+  };
+</script>
+
+<script>
+// ================= SENHA DE ACESSO =================
+const HASH_PADRAO = "b57edc42d4c5f8f5b1a97b3d5e2c3a4f7f9e1d2c3b4a5968778695a4b3c2d1e0"; // placeholder, trocado no primeiro uso
+async function sha256(txt){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt));
+  return Array.from(new Uint8Array(buf)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+}
+function getSenhaHash(){ return localStorage.getItem('rh_senha_hash') || null; }
+async function fazerLogin(){
+  const val = document.getElementById('login-senha').value;
+  const h = await sha256(val);
+  const salvo = getSenhaHash();
+  const senhaPadrao = (val === 'paotradicao2026');
+  if((salvo && h===salvo) || (!salvo && senhaPadrao)){
+    if(!salvo) localStorage.setItem('rh_senha_hash', await sha256('paotradicao2026'));
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('app').classList.add('show');
+    iniciarApp();
+  } else {
+    document.getElementById('login-erro').style.display = 'block';
+  }
+}
+async function alterarSenha(){
+  const nova = document.getElementById('nova-senha').value.trim();
+  if(nova.length < 4){ toast('Senha muito curta.'); return; }
+  localStorage.setItem('rh_senha_hash', await sha256(nova));
+  document.getElementById('nova-senha').value='';
+  toast('Senha alterada!');
+}
+function sair(){
+  document.getElementById('app').classList.remove('show');
+  document.getElementById('login-screen').classList.remove('hidden');
+}
+
+// ================= DB (localStorage + Firestore) =================
+let _cache = {};
+const CHAVES_SYNC = ['funcionarios','ocorrencias','mural'];
+let syncTimers = {};
+function DBget(k){
+  if(_cache.hasOwnProperty(k)) return _cache[k];
+  let v; try{ v = JSON.parse(localStorage.getItem('rh_'+k) || '[]'); }catch(e){ v=[]; }
+  _cache[k]=v; return v;
+}
+function DBset(k,v){
+  localStorage.setItem('rh_'+k, JSON.stringify(v));
+  _cache[k]=v;
+  if(CHAVES_SYNC.includes(k) && window.firestoreSalvar){
+    clearTimeout(syncTimers[k]);
+    syncTimers[k] = setTimeout(function(){ window.firestoreSalvar(k, v); }, 1000);
+  }
+}
+async function carregarNuvem(){
+  if(!window.firestoreCarregar) return;
+  for(const k of CHAVES_SYNC){
+    const dados = await window.firestoreCarregar(k);
+    if(dados !== null){ _cache[k]=dados; localStorage.setItem('rh_'+k, JSON.stringify(dados)); }
+  }
+  renderTudo();
+}
+
+// ================= SEED (Informações_dos_Colaboradores_atualizada.xlsx) =================
+const FUNCIONARIOS_SEED = [
+{id:"seed0adrianas",nome:"Adriana Satilio Rosa",cargo:'',setor:'',dataAdmissao:"2025-01-13",dataNascimento:"1981-06-17",telefone:"992610075",email:"adrianasatilio77@gmail.com",cpf:"090.291.157-00",pix:"090.291.157-00",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2025-01-13"},fichaDados:{feita:true,data:"2025-01-13"},exameAdmissional:{feita:true,data:"2025-01-13"},docsContabilidade:{feita:true,data:"2025-01-13"},cadastroPonto:{feita:true,data:"2025-01-13"}},periodoFeriasInicio:"2025-01-13"},
+{id:"seed1alciliab",nome:"Alcil\u00e9ia Barboza Vieira",cargo:'',setor:'',dataAdmissao:"2021-03-09",dataNascimento:"1963-05-12",telefone:"981078340",email:"alcileabarbosavieira1969@gmail.com",cpf:"082.902.557-05",pix:"981078340",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2021-03-09"},fichaDados:{feita:true,data:"2021-03-09"},exameAdmissional:{feita:true,data:"2021-03-09"},docsContabilidade:{feita:true,data:"2021-03-09"},cadastroPonto:{feita:true,data:"2021-03-09"}},periodoFeriasInicio:"2021-03-09"},
+{id:"seed2aleilton",nome:"Aleilton de Assis Rubim",cargo:'',setor:'',dataAdmissao:"2010-10-01",dataNascimento:"1971-04-26",telefone:"992040056",email:"aleiltonrubin06@gmail.com",cpf:"083.790.127-80",pix:"992040056",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2010-10-01"},fichaDados:{feita:true,data:"2010-10-01"},exameAdmissional:{feita:true,data:"2010-10-01"},docsContabilidade:{feita:true,data:"2010-10-01"},cadastroPonto:{feita:true,data:"2010-10-01"}},periodoFeriasInicio:"2010-10-01"},
+{id:"seed3andrlour",nome:"Andr\u00e9 Louren\u00e7o da Silva",cargo:'',setor:'',dataAdmissao:"2025-11-22",dataNascimento:"1977-03-16",telefone:"974046305",email:"andresilva8974@gmail.com",cpf:"025.907.824-70",pix:"025.907.824-70",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2025-11-22"},fichaDados:{feita:true,data:"2025-11-22"},exameAdmissional:{feita:true,data:"2025-11-22"},docsContabilidade:{feita:true,data:"2025-11-22"},cadastroPonto:{feita:true,data:"2025-11-22"}},periodoFeriasInicio:"2025-11-22"},
+{id:"seed4anaclara",nome:"Ana Clara de Macedo Oliveira de Souza",cargo:'',setor:'',dataAdmissao:"2026-07-15",dataNascimento:"2010-09-03",telefone:"981079600",email:"anaclarademacedo16@gmail.com",cpf:"064.553.597-47",pix:"",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2026-07-15"},fichaDados:{feita:true,data:"2026-07-15"},exameAdmissional:{feita:true,data:"2026-07-15"},docsContabilidade:{feita:true,data:"2026-07-15"},cadastroPonto:{feita:true,data:"2026-07-15"}},periodoFeriasInicio:"2026-07-15"},
+{id:"seed5anaclara",nome:"Ana Clara Guimar\u00e3es de Ara\u00fajo Soares",cargo:'',setor:'',dataAdmissao:"2025-12-04",dataNascimento:"2009-08-02",telefone:"992333553",email:"Anaclaraguimaraesanaclara@gmail",cpf:"105.307.303-83",pix:"105.307.303-83",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2025-12-04"},fichaDados:{feita:true,data:"2025-12-04"},exameAdmissional:{feita:true,data:"2025-12-04"},docsContabilidade:{feita:true,data:"2025-12-04"},cadastroPonto:{feita:true,data:"2025-12-04"}},periodoFeriasInicio:"2025-12-04"},
+{id:"seed6annajuli",nome:"Anna Julia dos Santos Dias",cargo:'',setor:'',dataAdmissao:"2024-03-11",dataNascimento:"2005-06-20",telefone:"981110682",email:"diasannajulia548@gmail.com",cpf:"063.360.727-46",pix:"981110682",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2024-03-11"},fichaDados:{feita:true,data:"2024-03-11"},exameAdmissional:{feita:true,data:"2024-03-11"},docsContabilidade:{feita:true,data:"2024-03-11"},cadastroPonto:{feita:true,data:"2024-03-11"}},periodoFeriasInicio:"2024-03-11"},
+{id:"seed7arleidas",nome:"Arlei da Silva Rola",cargo:'',setor:'',dataAdmissao:"",dataNascimento:"1968-07-21",telefone:"997052409",email:"arleisilva21@gmail.com",cpf:"015.744.897-55",pix:"",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:""},fichaDados:{feita:true,data:""},exameAdmissional:{feita:true,data:""},docsContabilidade:{feita:true,data:""},cadastroPonto:{feita:true,data:""}},periodoFeriasInicio:""},
+{id:"seed8bernardo",nome:"Bernardo Ferreira dos Santos",cargo:'',setor:'',dataAdmissao:"2026-03-14",dataNascimento:"2008-01-06",telefone:"981834927",email:"bernardoferreirasantos06@gmail.com",cpf:"065.239.837-57",pix:"065.239.837-57",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2026-03-14"},fichaDados:{feita:true,data:"2026-03-14"},exameAdmissional:{feita:true,data:"2026-03-14"},docsContabilidade:{feita:true,data:"2026-03-14"},cadastroPonto:{feita:true,data:"2026-03-14"}},periodoFeriasInicio:"2026-03-14"},
+{id:"seed9biancaba",nome:"Bianca Batista Carrero",cargo:'',setor:'',dataAdmissao:"2022-03-01",dataNascimento:"2003-03-23",telefone:"981505668",email:"biancabatista450@gmail.com",cpf:"164.902.197-60",pix:"164.902.197-60",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2022-03-01"},fichaDados:{feita:true,data:"2022-03-01"},exameAdmissional:{feita:true,data:"2022-03-01"},docsContabilidade:{feita:true,data:"2022-03-01"},cadastroPonto:{feita:true,data:"2022-03-01"}},periodoFeriasInicio:"2022-03-01"},
+{id:"seed10brendonh",nome:"Brendon Herdy Guimar\u00e3es",cargo:'',setor:'',dataAdmissao:"2025-04-02",dataNascimento:"2008-07-31",telefone:"997533498",email:"brendon.frib@gmail.com",cpf:"163.200.247-63",pix:"163.200.247-63",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2025-04-02"},fichaDados:{feita:true,data:"2025-04-02"},exameAdmissional:{feita:true,data:"2025-04-02"},docsContabilidade:{feita:true,data:"2025-04-02"},cadastroPonto:{feita:true,data:"2025-04-02"}},periodoFeriasInicio:"2025-04-02"},
+{id:"seed11cassiane",nome:"Cassiane M. de O. Barros",cargo:'',setor:'',dataAdmissao:"2023-08-12",dataNascimento:"2000-04-12",telefone:"988518908",email:"cassiane.barros@aluno.cefet-rj.br",cpf:"192.254.127-38",pix:"192.254.127-38",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2023-08-12"},fichaDados:{feita:true,data:"2023-08-12"},exameAdmissional:{feita:true,data:"2023-08-12"},docsContabilidade:{feita:true,data:"2023-08-12"},cadastroPonto:{feita:true,data:"2023-08-12"}},periodoFeriasInicio:"2023-08-12"},
+{id:"seed12cleidson",nome:"Cleidson Pacheco Moraes",cargo:'',setor:'',dataAdmissao:"2023-11-06",dataNascimento:"1982-06-08",telefone:"999240177",email:"cleidsompachecomoraes@gmail.com",cpf:"107.269.417-43",pix:"999240177",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2023-11-06"},fichaDados:{feita:true,data:"2023-11-06"},exameAdmissional:{feita:true,data:"2023-11-06"},docsContabilidade:{feita:true,data:"2023-11-06"},cadastroPonto:{feita:true,data:"2023-11-06"}},periodoFeriasInicio:"2023-11-06"},
+{id:"seed13daianero",nome:"Daiane Rodrigues de Oliveira",cargo:'',setor:'',dataAdmissao:"2026-02-11",dataNascimento:"1997-09-02",telefone:"988189131",email:"rodriguesdayanne974@gmail.com",cpf:"156.989.037-43",pix:"988189131",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2026-02-11"},fichaDados:{feita:true,data:"2026-02-11"},exameAdmissional:{feita:true,data:"2026-02-11"},docsContabilidade:{feita:true,data:"2026-02-11"},cadastroPonto:{feita:true,data:"2026-02-11"}},periodoFeriasInicio:"2026-02-11"},
+{id:"seed14dariovin",nome:"Dario Vin\u00edcius Jac\u00f3 Moraes",cargo:'',setor:'',dataAdmissao:"2024-09-12",dataNascimento:"1997-05-03",telefone:"998228292",email:"darioviniciusjaco@gmail.com",cpf:"065.582.537-12",pix:"065.582.537-12",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2024-09-12"},fichaDados:{feita:true,data:"2024-09-12"},exameAdmissional:{feita:true,data:"2024-09-12"},docsContabilidade:{feita:true,data:"2024-09-12"},cadastroPonto:{feita:true,data:"2024-09-12"}},periodoFeriasInicio:"2024-09-12"},
+{id:"seed15diegogue",nome:"Diego Guedes Pereira de Jesus",cargo:'',setor:'',dataAdmissao:"2025-06-02",dataNascimento:"2008-06-09",telefone:"992215970",email:"guedesdiego330@gmail.com",cpf:"064.666.987-77",pix:"064.666.987-77",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2025-06-02"},fichaDados:{feita:true,data:"2025-06-02"},exameAdmissional:{feita:true,data:"2025-06-02"},docsContabilidade:{feita:true,data:"2025-06-02"},cadastroPonto:{feita:true,data:"2025-06-02"}},periodoFeriasInicio:"2025-06-02"},
+{id:"seed16elianede",nome:"Eliane de Souza Guimar\u00e3es",cargo:'',setor:'',dataAdmissao:"2026-02-13",dataNascimento:"1968-06-07",telefone:"988255943",email:"guimaraeseliane935@gmail.com",cpf:"998.955.447-15",pix:"998.955.447-15",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2026-02-13"},fichaDados:{feita:true,data:"2026-02-13"},exameAdmissional:{feita:true,data:"2026-02-13"},docsContabilidade:{feita:true,data:"2026-02-13"},cadastroPonto:{feita:true,data:"2026-02-13"}},periodoFeriasInicio:"2026-02-13"},
+{id:"seed17elieldos",nome:"Eliel dos Reis de Moraes",cargo:'',setor:'',dataAdmissao:"2020-10-01",dataNascimento:"2000-06-17",telefone:"999013897",email:"eliel22999013897@gmail.com",cpf:"064.141.647-47",pix:"999013897",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2020-10-01"},fichaDados:{feita:true,data:"2020-10-01"},exameAdmissional:{feita:true,data:"2020-10-01"},docsContabilidade:{feita:true,data:"2020-10-01"},cadastroPonto:{feita:true,data:"2020-10-01"}},periodoFeriasInicio:"2020-10-01"},
+{id:"seed18emilysiq",nome:"Emily Siqueira dos Santos",cargo:'',setor:'',dataAdmissao:"2026-06-25",dataNascimento:"2010-05-17",telefone:"992885092",email:"emilysiqueiradossantos@gmaim.co",cpf:"063.673.677-64",pix:"992885092",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2026-06-25"},fichaDados:{feita:true,data:"2026-06-25"},exameAdmissional:{feita:true,data:"2026-06-25"},docsContabilidade:{feita:true,data:"2026-06-25"},cadastroPonto:{feita:true,data:"2026-06-25"}},periodoFeriasInicio:"2026-06-25"},
+{id:"seed19elizngel",nome:"Eliz\u00e2ngela \u00c2ngelo dos Santos",cargo:'',setor:'',dataAdmissao:"2023-08-01",dataNascimento:"1983-02-27",telefone:"997036796",email:"elisangelasantos1220@gmail.com",cpf:"059.477.597-30",pix:"997036796",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2023-08-01"},fichaDados:{feita:true,data:"2023-08-01"},exameAdmissional:{feita:true,data:"2023-08-01"},docsContabilidade:{feita:true,data:"2023-08-01"},cadastroPonto:{feita:true,data:"2023-08-01"}},periodoFeriasInicio:"2023-08-01"},
+{id:"seed20elvisnge",nome:"Elvis \u00c2ngelo Fernandes",cargo:'',setor:'',dataAdmissao:"2014-08-01",dataNascimento:"1992-03-09",telefone:"992349133",email:"elvisfernandesbfc@hotmail.com",cpf:"124.752.017-03",pix:"",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2014-08-01"},fichaDados:{feita:true,data:"2014-08-01"},exameAdmissional:{feita:true,data:"2014-08-01"},docsContabilidade:{feita:true,data:"2014-08-01"},cadastroPonto:{feita:true,data:"2014-08-01"}},periodoFeriasInicio:"2014-08-01"},
+{id:"seed21fabianap",nome:"Fabiana Pinheiro Heckert",cargo:'',setor:'',dataAdmissao:"2025-07-15",dataNascimento:"1981-09-05",telefone:"998087650",email:"hechertfabiana@gmail.com",cpf:"099.701.707-40",pix:"998087650",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2025-07-15"},fichaDados:{feita:true,data:"2025-07-15"},exameAdmissional:{feita:true,data:"2025-07-15"},docsContabilidade:{feita:true,data:"2025-07-15"},cadastroPonto:{feita:true,data:"2025-07-15"}},periodoFeriasInicio:"2025-07-15"},
+{id:"seed22flaviofr",nome:"Flavio Francisco Novaes",cargo:'',setor:'',dataAdmissao:"2019-09-01",dataNascimento:"1994-04-16",telefone:"992239473",email:"flaviomarceloff6@gmail.com",cpf:"157.130.357-00",pix:"992239473",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2019-09-01"},fichaDados:{feita:true,data:"2019-09-01"},exameAdmissional:{feita:true,data:"2019-09-01"},docsContabilidade:{feita:true,data:"2019-09-01"},cadastroPonto:{feita:true,data:"2019-09-01"}},periodoFeriasInicio:"2019-09-01"},
+{id:"seed23gabrield",nome:"Gabriel Dias  da Costa",cargo:'',setor:'',dataAdmissao:"2026-05-19",dataNascimento:"2008-07-22",telefone:"998924106",email:"gabrieldiasdacosta@gmail.com",cpf:"220.475.797-75",pix:"2198774486",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2026-05-19"},fichaDados:{feita:true,data:"2026-05-19"},exameAdmissional:{feita:true,data:"2026-05-19"},docsContabilidade:{feita:true,data:"2026-05-19"},cadastroPonto:{feita:true,data:"2026-05-19"}},periodoFeriasInicio:"2026-05-19"},
+{id:"seed24gabrielp",nome:"Gabriel Pereira Monteiro",cargo:'',setor:'',dataAdmissao:"2024-10-18",dataNascimento:"2003-10-29",telefone:"998144784",email:"gabriel.p.m.1976@gmail.com",cpf:"063.663.677-10",pix:"",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2024-10-18"},fichaDados:{feita:true,data:"2024-10-18"},exameAdmissional:{feita:true,data:"2024-10-18"},docsContabilidade:{feita:true,data:"2024-10-18"},cadastroPonto:{feita:true,data:"2024-10-18"}},periodoFeriasInicio:"2024-10-18"},
+{id:"seed25gianvito",nome:"Gian Vitoriano Alexandre",cargo:'',setor:'',dataAdmissao:"2023-08-14",dataNascimento:"2001-10-25",telefone:"999885791",email:"gianvitoriano180@outlook.com",cpf:"063.355.337-90",pix:"999885791",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2023-08-14"},fichaDados:{feita:true,data:"2023-08-14"},exameAdmissional:{feita:true,data:"2023-08-14"},docsContabilidade:{feita:true,data:"2023-08-14"},cadastroPonto:{feita:true,data:"2023-08-14"}},periodoFeriasInicio:"2023-08-14"},
+{id:"seed26greisond",nome:"Greison de Souza Medeiros",cargo:'',setor:'',dataAdmissao:"2026-02-20",dataNascimento:"1980-07-08",telefone:"996023139",email:"greisonmedeiros764@gmail.com",cpf:"098.544.407-02",pix:"greisonmedeiros764@gmail.com",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2026-02-20"},fichaDados:{feita:true,data:"2026-02-20"},exameAdmissional:{feita:true,data:"2026-02-20"},docsContabilidade:{feita:true,data:"2026-02-20"},cadastroPonto:{feita:true,data:"2026-02-20"}},periodoFeriasInicio:"2026-02-20"},
+{id:"seed27iagodeso",nome:"Iago de Souza Soares",cargo:'',setor:'',dataAdmissao:"2021-07-03",dataNascimento:"1993-11-19",telefone:"999114798",email:"iagoss1993@gmail.com",cpf:"163.345.147-09",pix:"",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2021-07-03"},fichaDados:{feita:true,data:"2021-07-03"},exameAdmissional:{feita:true,data:"2021-07-03"},docsContabilidade:{feita:true,data:"2021-07-03"},cadastroPonto:{feita:true,data:"2021-07-03"}},periodoFeriasInicio:"2021-07-03"},
+{id:"seed28igortien",nome:"Igor Tiene Daniel",cargo:'',setor:'',dataAdmissao:"2024-02-28",dataNascimento:"2003-04-14",telefone:"981191981",email:"igortd072@gmail.com",cpf:"063.592.547-86",pix:"063.592.547-86",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2024-02-28"},fichaDados:{feita:true,data:"2024-02-28"},exameAdmissional:{feita:true,data:"2024-02-28"},docsContabilidade:{feita:true,data:"2024-02-28"},cadastroPonto:{feita:true,data:"2024-02-28"}},periodoFeriasInicio:"2024-02-28"},
+{id:"seed29iuriheri",nome:"Iuri Herick da Silva",cargo:'',setor:'',dataAdmissao:"2026-06-18",dataNascimento:"2001-12-24",telefone:"998912118",email:"ih053908@gmail.com",cpf:"162.216.447-47",pix:"ih053908@gmail.com",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2026-06-18"},fichaDados:{feita:true,data:"2026-06-18"},exameAdmissional:{feita:true,data:"2026-06-18"},docsContabilidade:{feita:true,data:"2026-06-18"},cadastroPonto:{feita:true,data:"2026-06-18"}},periodoFeriasInicio:"2026-06-18"},
+{id:"seed30ivancunh",nome:"Ivan Cunha",cargo:'',setor:'',dataAdmissao:"2026-07-13",dataNascimento:"1961-06-11",telefone:"996226384",email:"",cpf:"712.232.317-04",pix:"",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2026-07-13"},fichaDados:{feita:true,data:"2026-07-13"},exameAdmissional:{feita:true,data:"2026-07-13"},docsContabilidade:{feita:true,data:"2026-07-13"},cadastroPonto:{feita:true,data:"2026-07-13"}},periodoFeriasInicio:"2026-07-13"},
+{id:"seed31janeteed",nome:"Janete Edineia Silva",cargo:'',setor:'',dataAdmissao:"2022-03-01",dataNascimento:"1968-06-12",telefone:"999264337",email:"dasilvajaneth31@gmail.com",cpf:"038.856.027-41",pix:"",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2022-03-01"},fichaDados:{feita:true,data:"2022-03-01"},exameAdmissional:{feita:true,data:"2022-03-01"},docsContabilidade:{feita:true,data:"2022-03-01"},cadastroPonto:{feita:true,data:"2022-03-01"}},periodoFeriasInicio:"2022-03-01"},
+{id:"seed32jefferso",nome:"Jefferson de Assis Nascimento",cargo:'',setor:'',dataAdmissao:"2025-05-26",dataNascimento:"2005-11-27",telefone:"992059459",email:"jeffersondeassisnascimento@gmail.com",cpf:"066.872.317-31",pix:"992059459",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2025-05-26"},fichaDados:{feita:true,data:"2025-05-26"},exameAdmissional:{feita:true,data:"2025-05-26"},docsContabilidade:{feita:true,data:"2025-05-26"},cadastroPonto:{feita:true,data:"2025-05-26"}},periodoFeriasInicio:"2025-05-26"},
+{id:"seed33joomarco",nome:"Jo\u00e3o Marcos da Silva de Oliveira",cargo:'',setor:'',dataAdmissao:"2026-05-08",dataNascimento:"2009-12-10",telefone:"988031850",email:"marcosjoao67139@gmail.com",cpf:"189.759.637-56",pix:"189.759.637-56",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2026-05-08"},fichaDados:{feita:true,data:"2026-05-08"},exameAdmissional:{feita:true,data:"2026-05-08"},docsContabilidade:{feita:true,data:"2026-05-08"},cadastroPonto:{feita:true,data:"2026-05-08"}},periodoFeriasInicio:"2026-05-08"},
+{id:"seed34joovicto",nome:"Jo\u00e3o Victor Alves Ism\u00e9rio",cargo:'',setor:'',dataAdmissao:"2026-02-24",dataNascimento:"2010-02-05",telefone:"996153774",email:"joaovictoralvesismerio@gmail.com",cpf:"211.882.077-17",pix:"joaovictoralvesismerio@gmail.com",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2026-02-24"},fichaDados:{feita:true,data:"2026-02-24"},exameAdmissional:{feita:true,data:"2026-02-24"},docsContabilidade:{feita:true,data:"2026-02-24"},cadastroPonto:{feita:true,data:"2026-02-24"}},periodoFeriasInicio:"2026-02-24"},
+{id:"seed35jonatasv",nome:"Jonatas Vieira da Silva",cargo:'',setor:'',dataAdmissao:"2017-11-01",dataNascimento:"1990-12-27",telefone:"998324492",email:"jonatasvieradasilva453@gmail.com",cpf:"141.474.267-35",pix:"998324492",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2017-11-01"},fichaDados:{feita:true,data:"2017-11-01"},exameAdmissional:{feita:true,data:"2017-11-01"},docsContabilidade:{feita:true,data:"2017-11-01"},cadastroPonto:{feita:true,data:"2017-11-01"}},periodoFeriasInicio:"2017-11-01"},
+{id:"seed36josanton",nome:"Jos\u00e9 Antonio Melo Carvalho",cargo:'',setor:'',dataAdmissao:"2008-02-01",dataNascimento:"1974-01-04",telefone:"998503967",email:"patoreantonio@gmail.com",cpf:"070.130.217-84",pix:"998503967",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2008-02-01"},fichaDados:{feita:true,data:"2008-02-01"},exameAdmissional:{feita:true,data:"2008-02-01"},docsContabilidade:{feita:true,data:"2008-02-01"},cadastroPonto:{feita:true,data:"2008-02-01"}},periodoFeriasInicio:"2008-02-01"},
+{id:"seed37josjoaqu",nome:"Jos\u00e9 Joaquim Menezes Lopes",cargo:'',setor:'',dataAdmissao:"2025-01-13",dataNascimento:"1967-12-16",telefone:"21920236845",email:"naimcoa6@gmail.com",cpf:"710.571,752-18",pix:"",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2025-01-13"},fichaDados:{feita:true,data:"2025-01-13"},exameAdmissional:{feita:true,data:"2025-01-13"},docsContabilidade:{feita:true,data:"2025-01-13"},cadastroPonto:{feita:true,data:"2025-01-13"}},periodoFeriasInicio:"2025-01-13"},
+{id:"seed38josubarr",nome:"Josu\u00e9 Barroso",cargo:'',setor:'',dataAdmissao:"2025-12-23",dataNascimento:"1966-01-27",telefone:"991057610",email:"",cpf:"925.980.137-00",pix:"",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2025-12-23"},fichaDados:{feita:true,data:"2025-12-23"},exameAdmissional:{feita:true,data:"2025-12-23"},docsContabilidade:{feita:true,data:"2025-12-23"},cadastroPonto:{feita:true,data:"2025-12-23"}},periodoFeriasInicio:"2025-12-23"},
+{id:"seed39juliaama",nome:"Julia Amaral da Silva",cargo:'',setor:'',dataAdmissao:"2026-03-26",dataNascimento:"2004-02-22",telefone:"991011735",email:"juliaamaralnf@gmail.com",cpf:"199.128.257-56",pix:"991011735",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2026-03-26"},fichaDados:{feita:true,data:"2026-03-26"},exameAdmissional:{feita:true,data:"2026-03-26"},docsContabilidade:{feita:true,data:"2026-03-26"},cadastroPonto:{feita:true,data:"2026-03-26"}},periodoFeriasInicio:"2026-03-26"},
+{id:"seed40kaiquefa",nome:"Kaique Fagundes Silveira",cargo:'',setor:'',dataAdmissao:"2025-04-25",dataNascimento:"1992-10-26",telefone:"981020097",email:"kaiquefagundes@hotmail.com",cpf:"143.964.797-60",pix:"kaiquefagundes@hotmail.com",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2025-04-25"},fichaDados:{feita:true,data:"2025-04-25"},exameAdmissional:{feita:true,data:"2025-04-25"},docsContabilidade:{feita:true,data:"2025-04-25"},cadastroPonto:{feita:true,data:"2025-04-25"}},periodoFeriasInicio:"2025-04-25"},
+{id:"seed41karolayn",nome:"Karolayne Moura da Silva",cargo:'',setor:'',dataAdmissao:"2024-09-29",dataNascimento:"1997-12-12",telefone:"992391918",email:"karolaynemoura613@gmail.com",cpf:"062.790.657-58",pix:"992391918",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2024-09-29"},fichaDados:{feita:true,data:"2024-09-29"},exameAdmissional:{feita:true,data:"2024-09-29"},docsContabilidade:{feita:true,data:"2024-09-29"},cadastroPonto:{feita:true,data:"2024-09-29"}},periodoFeriasInicio:"2024-09-29"},
+{id:"seed42leandroc",nome:"Leandro Coelho",cargo:'',setor:'',dataAdmissao:"2026-04-06",dataNascimento:"1994-09-14",telefone:"988252759",email:"leandrocoelho13@gmail.com",cpf:"115.179.627-14",pix:"988252759",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2026-04-06"},fichaDados:{feita:true,data:"2026-04-06"},exameAdmissional:{feita:true,data:"2026-04-06"},docsContabilidade:{feita:true,data:"2026-04-06"},cadastroPonto:{feita:true,data:"2026-04-06"}},periodoFeriasInicio:"2026-04-06"},
+{id:"seed43leandrod",nome:"Leandro do Nascimento Braga",cargo:'',setor:'',dataAdmissao:"2021-08-09",dataNascimento:"1981-08-02",telefone:"999232040",email:"02leandrobraga@gmail.com",cpf:"088.606.637-92",pix:"999232040",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2021-08-09"},fichaDados:{feita:true,data:"2021-08-09"},exameAdmissional:{feita:true,data:"2021-08-09"},docsContabilidade:{feita:true,data:"2021-08-09"},cadastroPonto:{feita:true,data:"2021-08-09"}},periodoFeriasInicio:"2021-08-09"},
+{id:"seed44leonardo",nome:"Leonardo Pires da Silva",cargo:'',setor:'',dataAdmissao:"2026-05-20",dataNascimento:"1977-04-08",telefone:"996125616",email:"leopires48@gmail.com",cpf:"071.174.147-66",pix:"22997985564",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2026-05-20"},fichaDados:{feita:true,data:"2026-05-20"},exameAdmissional:{feita:true,data:"2026-05-20"},docsContabilidade:{feita:true,data:"2026-05-20"},cadastroPonto:{feita:true,data:"2026-05-20"}},periodoFeriasInicio:"2026-05-20"},
+{id:"seed45leonardo",nome:"Leonardo da Silva Jr.",cargo:'',setor:'',dataAdmissao:"2024-05-22",dataNascimento:"2005-10-26",telefone:"996227692",email:"andinvitoriano01@gmail.com",cpf:"064.610.447-01",pix:"996227692",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2024-05-22"},fichaDados:{feita:true,data:"2024-05-22"},exameAdmissional:{feita:true,data:"2024-05-22"},docsContabilidade:{feita:true,data:"2024-05-22"},cadastroPonto:{feita:true,data:"2024-05-22"}},periodoFeriasInicio:"2024-05-22"},
+{id:"seed46leiladar",nome:"Leila da Rocha Andrade",cargo:'',setor:'',dataAdmissao:"2019-04-09",dataNascimento:"1966-03-22",telefone:"11982402917",email:"rochaandradeleila@gmail.com",cpf:"029.619.377-10",pix:"11982402917",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2019-04-09"},fichaDados:{feita:true,data:"2019-04-09"},exameAdmissional:{feita:true,data:"2019-04-09"},docsContabilidade:{feita:true,data:"2019-04-09"},cadastroPonto:{feita:true,data:"2019-04-09"}},periodoFeriasInicio:"2019-04-09"},
+{id:"seed47lucinabo",nome:"Lucin\u00e9a Borrher",cargo:'',setor:'',dataAdmissao:"2026-03-13",dataNascimento:"1966-11-14",telefone:"998624899",email:"luciaborrher22@gmail.com",cpf:"002.209.617-51",pix:"998624899",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2026-03-13"},fichaDados:{feita:true,data:"2026-03-13"},exameAdmissional:{feita:true,data:"2026-03-13"},docsContabilidade:{feita:true,data:"2026-03-13"},cadastroPonto:{feita:true,data:"2026-03-13"}},periodoFeriasInicio:"2026-03-13"},
+{id:"seed48matheusm",nome:"Matheus Moura Severo Coimbra",cargo:'',setor:'',dataAdmissao:"2025-02-05",dataNascimento:"1999-11-26",telefone:"999650863",email:"mtheu1ab@gmail.com",cpf:"064.441.157-01",pix:"064.441.157-01",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2025-02-05"},fichaDados:{feita:true,data:"2025-02-05"},exameAdmissional:{feita:true,data:"2025-02-05"},docsContabilidade:{feita:true,data:"2025-02-05"},cadastroPonto:{feita:true,data:"2025-02-05"}},periodoFeriasInicio:"2025-02-05"},
+{id:"seed49micaelhe",nome:"Micael Helio da Silva Modesto",cargo:'',setor:'',dataAdmissao:"2025-10-06",dataNascimento:"2009-05-22",telefone:"992123864",email:"micaelmodesto409@gmail.com",cpf:"064.639.557-28",pix:"064.639.557-28",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2025-10-06"},fichaDados:{feita:true,data:"2025-10-06"},exameAdmissional:{feita:true,data:"2025-10-06"},docsContabilidade:{feita:true,data:"2025-10-06"},cadastroPonto:{feita:true,data:"2025-10-06"}},periodoFeriasInicio:"2025-10-06"},
+{id:"seed50natanmar",nome:"Natan Marques Marinho",cargo:'',setor:'',dataAdmissao:"2023-04-01",dataNascimento:"2002-01-25",telefone:"996206477",email:"marquesnatan921@gmail.com",cpf:"182.590.977-61",pix:"996206477",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2023-04-01"},fichaDados:{feita:true,data:"2023-04-01"},exameAdmissional:{feita:true,data:"2023-04-01"},docsContabilidade:{feita:true,data:"2023-04-01"},cadastroPonto:{feita:true,data:"2023-04-01"}},periodoFeriasInicio:"2023-04-01"},
+{id:"seed51natansea",nome:"Natan Seabra Freitas Py",cargo:'',setor:'',dataAdmissao:"2024-03-25",dataNascimento:"2005-07-25",telefone:"988313246",email:"natan.seabra9@gmail.com",cpf:"127.916.737-84",pix:"988313246",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2024-03-25"},fichaDados:{feita:true,data:"2024-03-25"},exameAdmissional:{feita:true,data:"2024-03-25"},docsContabilidade:{feita:true,data:"2024-03-25"},cadastroPonto:{feita:true,data:"2024-03-25"}},periodoFeriasInicio:"2024-03-25"},
+{id:"seed52pedrogab",nome:"Pedro Gabriel da Silva Machado",cargo:'',setor:'',dataAdmissao:"2026-06-23",dataNascimento:"2004-11-11",telefone:"974056751",email:"pedrogabrielsml@gmail.com",cpf:"064.853.607-60",pix:"064.853.607-60",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2026-06-23"},fichaDados:{feita:true,data:"2026-06-23"},exameAdmissional:{feita:true,data:"2026-06-23"},docsContabilidade:{feita:true,data:"2026-06-23"},cadastroPonto:{feita:true,data:"2026-06-23"}},periodoFeriasInicio:"2026-06-23"},
+{id:"seed53qurenoli",nome:"Qu\u00e9ren Oliveira Modesto",cargo:'',setor:'',dataAdmissao:"2026-04-14",dataNascimento:"2007-05-09",telefone:"981202434",email:"oliveiramodestoqueren@gmail.com",cpf:"177.133.817-24",pix:"981202434",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2026-04-14"},fichaDados:{feita:true,data:"2026-04-14"},exameAdmissional:{feita:true,data:"2026-04-14"},docsContabilidade:{feita:true,data:"2026-04-14"},cadastroPonto:{feita:true,data:"2026-04-14"}},periodoFeriasInicio:"2026-04-14"},
+{id:"seed54ralysonc",nome:"Ralyson Costa Regasse",cargo:'',setor:'',dataAdmissao:"2025-09-22",dataNascimento:"2009-04-23",telefone:"992460418",email:"alisoncostaregasse@gmail.com",cpf:"065.391.087-88",pix:"992460418",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2025-09-22"},fichaDados:{feita:true,data:"2025-09-22"},exameAdmissional:{feita:true,data:"2025-09-22"},docsContabilidade:{feita:true,data:"2025-09-22"},cadastroPonto:{feita:true,data:"2025-09-22"}},periodoFeriasInicio:"2025-09-22"},
+{id:"seed55rodrigog",nome:"Rodrigo Godinho Pacheco",cargo:'',setor:'',dataAdmissao:"2018-07-01",dataNascimento:"1999-04-23",telefone:"988246636",email:"rodrigogodinho6@gmail.com",cpf:"158.698.937-55",pix:"",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2018-07-01"},fichaDados:{feita:true,data:"2018-07-01"},exameAdmissional:{feita:true,data:"2018-07-01"},docsContabilidade:{feita:true,data:"2018-07-01"},cadastroPonto:{feita:true,data:"2018-07-01"}},periodoFeriasInicio:"2018-07-01"},
+{id:"seed56ronaldol",nome:"Ronaldo Lopes Brito Junior",cargo:'',setor:'',dataAdmissao:"2022-03-05",dataNascimento:"2000-08-15",telefone:"981009451",email:"ronaldolopes8100@gmail.com",cpf:"205.464.867-11",pix:"205.464.867-11",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2022-03-05"},fichaDados:{feita:true,data:"2022-03-05"},exameAdmissional:{feita:true,data:"2022-03-05"},docsContabilidade:{feita:true,data:"2022-03-05"},cadastroPonto:{feita:true,data:"2022-03-05"}},periodoFeriasInicio:"2022-03-05"},
+{id:"seed57samuelmo",nome:"Samuel Monteiro Fernandes",cargo:'',setor:'',dataAdmissao:"2025-05-03",dataNascimento:"2007-01-26",telefone:"981352403",email:"samumomteiro2007@gmail.com",cpf:"064.794.277-18",pix:"064.794.277-18",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2025-05-03"},fichaDados:{feita:true,data:"2025-05-03"},exameAdmissional:{feita:true,data:"2025-05-03"},docsContabilidade:{feita:true,data:"2025-05-03"},cadastroPonto:{feita:true,data:"2025-05-03"}},periodoFeriasInicio:"2025-05-03"},
+{id:"seed58simonefe",nome:"Simone Fernanda Vieira da Silva",cargo:'',setor:'',dataAdmissao:"2026-06-17",dataNascimento:"1983-04-05",telefone:"997552090",email:"",cpf:"118.483.507-16",pix:"997552090",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2026-06-17"},fichaDados:{feita:true,data:"2026-06-17"},exameAdmissional:{feita:true,data:"2026-06-17"},docsContabilidade:{feita:true,data:"2026-06-17"},cadastroPonto:{feita:true,data:"2026-06-17"}},periodoFeriasInicio:"2026-06-17"},
+{id:"seed59suzanape",nome:"Suzana Peixoto da Silva",cargo:'',setor:'',dataAdmissao:"2021-12-01",dataNascimento:"1984-09-10",telefone:"997279566",email:"su2414529@gmail.com",cpf:"056.985.237-46",pix:"",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2021-12-01"},fichaDados:{feita:true,data:"2021-12-01"},exameAdmissional:{feita:true,data:"2021-12-01"},docsContabilidade:{feita:true,data:"2021-12-01"},cadastroPonto:{feita:true,data:"2021-12-01"}},periodoFeriasInicio:"2021-12-01"},
+{id:"seed60tniacata",nome:"T\u00e2nia Catarina Rodrigues",cargo:'',setor:'',dataAdmissao:"2023-09-11",dataNascimento:"1965-01-26",telefone:"998094146",email:"taniacatarinarodrigues5@gmail.com",cpf:"019.141.987-78",pix:"019.141.987-78",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2023-09-11"},fichaDados:{feita:true,data:"2023-09-11"},exameAdmissional:{feita:true,data:"2023-09-11"},docsContabilidade:{feita:true,data:"2023-09-11"},cadastroPonto:{feita:true,data:"2023-09-11"}},periodoFeriasInicio:"2023-09-11"},
+{id:"seed61thassamo",nome:"Tha\u00edssa Monteiro dos Santos",cargo:'',setor:'',dataAdmissao:"2025-01-04",dataNascimento:"2003-05-07",telefone:"999724449",email:"thaissamonteiro0705@gmail.com",cpf:"187.529.917-33",pix:"thatamonteiro50@gmail.com",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2025-01-04"},fichaDados:{feita:true,data:"2025-01-04"},exameAdmissional:{feita:true,data:"2025-01-04"},docsContabilidade:{feita:true,data:"2025-01-04"},cadastroPonto:{feita:true,data:"2025-01-04"}},periodoFeriasInicio:"2025-01-04"},
+{id:"seed62tamirysd",nome:"Tamirys da Silva Pimentel Mendes",cargo:'',setor:'',dataAdmissao:"2026-05-29",dataNascimento:"2010-05-28",telefone:"997125917",email:"tamirysmendes6@gmail.com",cpf:"064.109.757-32",pix:"064.109.757-32",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2026-05-29"},fichaDados:{feita:true,data:"2026-05-29"},exameAdmissional:{feita:true,data:"2026-05-29"},docsContabilidade:{feita:true,data:"2026-05-29"},cadastroPonto:{feita:true,data:"2026-05-29"}},periodoFeriasInicio:"2026-05-29"},
+{id:"seed63thaynflo",nome:"Thayn\u00e1 Flores de Oliveira",cargo:'',setor:'',dataAdmissao:"2025-01-09",dataNascimento:"2007-09-27",telefone:"999270088",email:"thaynaflores@gmail.com",cpf:"146.230.037-52",pix:"thaynaflores@gmail.com",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2025-01-09"},fichaDados:{feita:true,data:"2025-01-09"},exameAdmissional:{feita:true,data:"2025-01-09"},docsContabilidade:{feita:true,data:"2025-01-09"},cadastroPonto:{feita:true,data:"2025-01-09"}},periodoFeriasInicio:"2025-01-09"},
+{id:"seed64victriaj",nome:"Vict\u00f3ria Junqueira Jacomin",cargo:'',setor:'',dataAdmissao:"2026-06-23",dataNascimento:"2008-12-22",telefone:"992412580",email:"junqueirajacominvictoria@gmail.co",cpf:"165.631.327-82",pix:"992412580",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2026-06-23"},fichaDados:{feita:true,data:"2026-06-23"},exameAdmissional:{feita:true,data:"2026-06-23"},docsContabilidade:{feita:true,data:"2026-06-23"},cadastroPonto:{feita:true,data:"2026-06-23"}},periodoFeriasInicio:"2026-06-23"},
+{id:"seed65wendelve",nome:"Wendel Verly de Oliveira(estagi\u00e1rio)",cargo:'',setor:'',dataAdmissao:"2026-01-21",dataNascimento:"2009-07-05",telefone:"996178259",email:"wendelverly7@gmail.com",cpf:"165.527.357-40",pix:"996178259",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2026-01-21"},fichaDados:{feita:true,data:"2026-01-21"},exameAdmissional:{feita:true,data:"2026-01-21"},docsContabilidade:{feita:true,data:"2026-01-21"},cadastroPonto:{feita:true,data:"2026-01-21"}},periodoFeriasInicio:"2026-01-21"},
+{id:"seed66williamd",nome:"William Dami\u00e3o Machado",cargo:'',setor:'',dataAdmissao:"2020-11-01",dataNascimento:"1075-12-14",telefone:"997392383",email:"wilanmachado123@gmail.com",cpf:"036.741.957-18",pix:"997392383",endereco:'',status:'ativo',etapas:{entrevista:{feita:true,data:"2020-11-01"},fichaDados:{feita:true,data:"2020-11-01"},exameAdmissional:{feita:true,data:"2020-11-01"},docsContabilidade:{feita:true,data:"2020-11-01"},cadastroPonto:{feita:true,data:"2020-11-01"}},periodoFeriasInicio:"2020-11-01"}
+];
+function seedFuncionariosSeNecessario(){
+  const atuais = DBget('funcionarios');
+  if(atuais && atuais.length) return;
+  DBset('funcionarios', FUNCIONARIOS_SEED);
+}
+
+// ================= UTIL =================
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function formatarDataBR(iso){
+  if(!iso) return '';
+  const p = iso.split('-'); if(p.length!==3) return iso;
+  return p[2]+'/'+p[1]+'/'+p[0];
+}
+function hojeISO(){ return new Date().toISOString().slice(0,10); }
+function somarDias(iso, dias){
+  const d = new Date(iso+'T12:00:00'); d.setDate(d.getDate()+dias);
+  return d.toISOString().slice(0,10);
+}
+function somarMeses(iso, meses){
+  const d = new Date(iso+'T12:00:00'); d.setMonth(d.getMonth()+meses);
+  return d.toISOString().slice(0,10);
+}
+function diffDias(iso1, iso2){
+  const d1=new Date(iso1+'T12:00:00'), d2=new Date(iso2+'T12:00:00');
+  return Math.round((d2-d1)/86400000);
+}
+function linkWhats(telefone, mensagem){
+  let tel = (telefone||'').replace(/\D/g,'');
+  if(tel && tel.length<=11) tel = '55'+tel;
+  return 'https://wa.me/'+tel+'?text='+encodeURIComponent(mensagem);
+}
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2600);
+}
+function abrirModal(id){ document.getElementById(id).classList.add('aberto'); }
+function fecharModal(id){ document.getElementById(id).classList.remove('aberto'); }
+
+// ================= NAVEGACAO =================
+function irPara(view){
+  document.querySelectorAll('.nav-item').forEach(function(el){ el.classList.remove('active'); });
+  document.querySelector('.nav-item[data-view="'+view+'"]').classList.add('active');
+  document.querySelectorAll('.view').forEach(function(el){ el.classList.remove('active'); });
+  document.getElementById('view-'+view).classList.add('active');
+  renderTudo();
+}
+function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('collapsed'); }
+
+// ================= FUNCIONARIOS =================
+const ETAPAS_PADRAO = [
+  {chave:'entrevista', titulo:'Entrevista realizada'},
+  {chave:'fichaDados', titulo:'Ficha de dados preenchida (nome, telefone, e-mail, CPF, PIX)'},
+  {chave:'exameAdmissional', titulo:'Exame admissional realizado'},
+  {chave:'docsContabilidade', titulo:'Documentos enviados para a contabilidade'},
+  {chave:'cadastroPonto', titulo:'Cadastro no ponto realizado'}
+];
+function novoFuncionarioObj(){
+  const etapas = {};
+  ETAPAS_PADRAO.forEach(function(e){ etapas[e.chave] = {feita:false, data:''}; });
+  return { id: uid(), nome:'', cargo:'', setor:'', dataAdmissao:'', dataNascimento:'', telefone:'', email:'', cpf:'', pix:'', endereco:'', status:'contratando', etapas: etapas, periodoFeriasInicio:'',
+    entrevista: { data:'', entrevistador:'', origem:'', indicado:'', escolaridade:'', estadoCivil:'', dependentes:'', pretensao:'', disponibilidade:'', cnh:'', avaliacao:'', decisao:'', experiencia:'', referencias:'', pontosFortes:'', pontosAtencao:'', obs:'' }
+  };
+}
+let funcAberto = null;
+
+function abrirNovoFuncionario(){
+  funcAberto = novoFuncionarioObj();
+  preencherModalFuncionario();
+  document.getElementById('modal-func-titulo').textContent = 'Novo funcionário';
+  mudarTab('dados');
+  abrirModal('modal-func');
+}
+function abrirFuncionario(id){
+  const lista = DBget('funcionarios');
+  funcAberto = lista.find(function(f){ return f.id===id; });
+  if(!funcAberto) return;
+  preencherModalFuncionario();
+  document.getElementById('modal-func-titulo').textContent = funcAberto.nome || 'Funcionário';
+  mudarTab('dados');
+  abrirModal('modal-func');
+}
+function preencherModalFuncionario(){
+  const f = funcAberto;
+  document.getElementById('f-id').value = f.id;
+  document.getElementById('f-nome').value = f.nome||'';
+  document.getElementById('f-cargo').value = f.cargo||'';
+  document.getElementById('f-setor').value = f.setor||'';
+  document.getElementById('f-admissao').value = f.dataAdmissao||'';
+  document.getElementById('f-nascimento').value = f.dataNascimento||'';
+  document.getElementById('f-telefone').value = f.telefone||'';
+  document.getElementById('f-email').value = f.email||'';
+  document.getElementById('f-cpf').value = f.cpf||'';
+  document.getElementById('f-pix').value = f.pix||'';
+  document.getElementById('f-endereco').value = f.endereco||'';
+  document.getElementById('f-status').value = f.status||'contratando';
+  const e = f.entrevista || {};
+  document.getElementById('e-data').value = e.data||'';
+  document.getElementById('e-entrevistador').value = e.entrevistador||'';
+  document.getElementById('e-origem').value = e.origem||'';
+  document.getElementById('e-indicado').value = e.indicado||'';
+  document.getElementById('e-escolaridade').value = e.escolaridade||'';
+  document.getElementById('e-estadocivil').value = e.estadoCivil||'';
+  document.getElementById('e-dependentes').value = e.dependentes||'';
+  document.getElementById('e-pretensao').value = e.pretensao||'';
+  document.getElementById('e-disponibilidade').value = e.disponibilidade||'';
+  document.getElementById('e-cnh').value = e.cnh||'';
+  document.getElementById('e-avaliacao').value = e.avaliacao||'';
+  document.getElementById('e-decisao').value = e.decisao||'';
+  document.getElementById('e-experiencia').value = e.experiencia||'';
+  document.getElementById('e-referencias').value = e.referencias||'';
+  document.getElementById('e-pontosfortes').value = e.pontosFortes||'';
+  document.getElementById('e-pontosatencao').value = e.pontosAtencao||'';
+  document.getElementById('e-obs').value = e.obs||'';
+  renderTimeline();
+  renderHistoricoFuncionario();
+}
+function salvarFuncionario(){
+  const f = funcAberto;
+  f.nome = document.getElementById('f-nome').value.trim();
+  f.cargo = document.getElementById('f-cargo').value.trim();
+  f.setor = document.getElementById('f-setor').value.trim();
+  f.dataAdmissao = document.getElementById('f-admissao').value;
+  f.dataNascimento = document.getElementById('f-nascimento').value;
+  f.telefone = document.getElementById('f-telefone').value.trim();
+  f.email = document.getElementById('f-email').value.trim();
+  f.cpf = document.getElementById('f-cpf').value.trim();
+  f.pix = document.getElementById('f-pix').value.trim();
+  f.endereco = document.getElementById('f-endereco').value.trim();
+  f.status = document.getElementById('f-status').value;
+  f.entrevista = {
+    data: document.getElementById('e-data').value,
+    entrevistador: document.getElementById('e-entrevistador').value.trim(),
+    origem: document.getElementById('e-origem').value,
+    indicado: document.getElementById('e-indicado').value.trim(),
+    escolaridade: document.getElementById('e-escolaridade').value,
+    estadoCivil: document.getElementById('e-estadocivil').value,
+    dependentes: document.getElementById('e-dependentes').value,
+    pretensao: document.getElementById('e-pretensao').value.trim(),
+    disponibilidade: document.getElementById('e-disponibilidade').value.trim(),
+    cnh: document.getElementById('e-cnh').value,
+    avaliacao: document.getElementById('e-avaliacao').value,
+    decisao: document.getElementById('e-decisao').value,
+    experiencia: document.getElementById('e-experiencia').value.trim(),
+    referencias: document.getElementById('e-referencias').value.trim(),
+    pontosFortes: document.getElementById('e-pontosfortes').value.trim(),
+    pontosAtencao: document.getElementById('e-pontosatencao').value.trim(),
+    obs: document.getElementById('e-obs').value.trim()
+  };
+  if(!f.periodoFeriasInicio && f.dataAdmissao) f.periodoFeriasInicio = f.dataAdmissao;
+  if(!f.nome){ toast('Informe o nome.'); return; }
+  let lista = DBget('funcionarios');
+  const idx = lista.findIndex(function(x){ return x.id===f.id; });
+  if(idx>=0) lista[idx]=f; else lista.push(f);
+  DBset('funcionarios', lista);
+  fecharModal('modal-func');
+  toast('Funcionário salvo!');
+  renderTudo();
+}
+function mudarTab(tab){
+  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.tab===tab); });
+  document.querySelectorAll('.tab-pane').forEach(function(p){ p.classList.remove('active'); });
+  document.getElementById('tab-'+tab).classList.add('active');
+}
+function renderTimeline(){
+  const cont = document.getElementById('tl-lista');
+  const f = funcAberto;
+  cont.innerHTML = ETAPAS_PADRAO.map(function(e){
+    const et = f.etapas[e.chave] || {feita:false,data:''};
+    return '<li class="tl-item">'+
+      '<div class="tl-dot '+(et.feita?'feita':'')+'">'+(et.feita?'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>':'')+'</div>'+
+      '<div class="tl-body">'+
+        '<div class="tl-titulo">'+e.titulo+'</div>'+
+        '<label style="font-size:.8rem;display:flex;align-items:center;gap:6px;margin-top:5px">'+
+          '<input type="checkbox" '+(et.feita?'checked':'')+' onchange="marcarEtapa(\''+e.chave+'\', this.checked)"> Concluído'+
+        '</label>'+
+        '<input type="date" value="'+(et.data||'')+'" onchange="dataEtapa(\''+e.chave+'\', this.value)">'+
+      '</div>'+
+    '</li>';
+  }).join('');
+}
+function marcarEtapa(chave, feita){
+  funcAberto.etapas[chave].feita = feita;
+  if(feita && !funcAberto.etapas[chave].data) funcAberto.etapas[chave].data = hojeISO();
+  let lista = DBget('funcionarios');
+  const idx = lista.findIndex(function(x){ return x.id===funcAberto.id; });
+  if(idx>=0){ lista[idx]=funcAberto; DBset('funcionarios', lista); }
+  renderTimeline();
+}
+function dataEtapa(chave, valor){
+  funcAberto.etapas[chave].data = valor;
+  let lista = DBget('funcionarios');
+  const idx = lista.findIndex(function(x){ return x.id===funcAberto.id; });
+  if(idx>=0){ lista[idx]=funcAberto; DBset('funcionarios', lista); }
+}
+function renderHistoricoFuncionario(){
+  const oc = DBget('ocorrencias').filter(function(o){ return o.funcionarioId===funcAberto.id; });
+  const tbody = document.getElementById('hist-tbody');
+  if(!oc.length){ tbody.innerHTML = '<tr><td colspan="4" class="vazio">Nenhuma ocorrência lançada.</td></tr>'; return; }
+  tbody.innerHTML = oc.map(function(o){
+    return '<tr><td>'+tipoLabel(o.tipo)+'</td><td>'+formatarDataBR(o.dataInicio)+'</td><td>'+(o.dataFim?formatarDataBR(o.dataFim):'—')+'</td><td>'+(o.motivo||'—')+'</td></tr>';
+  }).join('');
+}
+function tipoLabel(t){
+  return {atestado:'Atestado', suspensao:'Suspensão', afastamento:'Afastamento', rescisao:'Rescisão'}[t] || t;
+}
+function statusBadge(s){
+  if(s==='ativo') return '<span class="badge badge-ativo">Ativo</span>';
+  if(s==='desligado') return '<span class="badge badge-desligado">Desligado</span>';
+  return '<span class="badge badge-pendente">Em contratação</span>';
+}
+function renderFuncionarios(){
+  const busca = (document.getElementById('func-busca').value||'').toLowerCase();
+  const filtro = document.getElementById('func-filtro-status').value;
+  let lista = DBget('funcionarios');
+  lista = lista.filter(function(f){
+    const okBusca = !busca || (f.nome||'').toLowerCase().includes(busca);
+    const okStatus = !filtro || f.status===filtro;
+    return okBusca && okStatus;
+  }).sort(function(a,b){ return (a.nome||'').localeCompare(b.nome||''); });
+  const tbody = document.getElementById('func-tbody');
+  if(!lista.length){ tbody.innerHTML = '<tr><td colspan="6" class="vazio">Nenhum funcionário encontrado.</td></tr>'; return; }
+  tbody.innerHTML = lista.map(function(f){
+    return '<tr>'+
+      '<td>'+(f.nome||'—')+'</td>'+
+      '<td>'+(f.cargo||'—')+'</td>'+
+      '<td>'+(f.setor||'—')+'</td>'+
+      '<td>'+(f.dataAdmissao?formatarDataBR(f.dataAdmissao):'—')+'</td>'+
+      '<td>'+statusBadge(f.status)+'</td>'+
+      '<td><button class="btn btn-outline btn-sm" onclick="abrirFuncionario(\''+f.id+'\')">Abrir</button></td>'+
+    '</tr>';
+  }).join('');
+}
+
+// ================= OCORRENCIAS =================
+function abrirNovaOcorrencia(){
+  const sel = document.getElementById('o-funcionario');
+  const lista = DBget('funcionarios').slice().sort(function(a,b){ return (a.nome||'').localeCompare(b.nome||''); });
+  sel.innerHTML = lista.map(function(f){ return '<option value="'+f.id+'">'+f.nome+'</option>'; }).join('');
+  document.getElementById('o-tipo').value = 'atestado';
+  document.getElementById('o-inicio').value = hojeISO();
+  document.getElementById('o-fim').value = '';
+  document.getElementById('o-motivo').value = '';
+  atualizarCamposOcorrencia();
+  abrirModal('modal-ocor');
+}
+function atualizarCamposOcorrencia(){
+  const tipo = document.getElementById('o-tipo').value;
+  const infoResc = document.getElementById('o-info-rescisao');
+  document.getElementById('o-fim-wrap').style.display = (tipo==='rescisao') ? 'none' : '';
+  document.getElementById('o-lbl-inicio').textContent = (tipo==='rescisao') ? 'Data do desligamento' : 'Data de início';
+  if(tipo==='rescisao'){
+    const dataPag = somarDias(document.getElementById('o-inicio').value || hojeISO(), 9);
+    infoResc.style.display='block';
+    infoResc.innerHTML = 'O aviso de pagamento será sugerido para <b>'+formatarDataBR(dataPag)+'</b> (9 dias após o desligamento).';
+  } else {
+    infoResc.style.display='none';
+  }
+}
+document.addEventListener('input', function(e){
+  if(e.target && e.target.id==='o-inicio') atualizarCamposOcorrencia();
+});
+function salvarOcorrencia(){
+  const funcionarioId = document.getElementById('o-funcionario').value;
+  const tipo = document.getElementById('o-tipo').value;
+  const dataInicio = document.getElementById('o-inicio').value;
+  const dataFim = document.getElementById('o-fim').value;
+  const motivo = document.getElementById('o-motivo').value.trim();
+  if(!funcionarioId || !dataInicio){ toast('Preencha funcionário e data.'); return; }
+  const o = { id: uid(), funcionarioId, tipo, dataInicio, dataFim, motivo, criadoEm: hojeISO(), avisado:false };
+  if(tipo==='rescisao'){
+    o.dataPagamento = somarDias(dataInicio, 9);
+    let lista = DBget('funcionarios');
+    const idx = lista.findIndex(function(f){ return f.id===funcionarioId; });
+    if(idx>=0){ lista[idx].status = 'desligado'; DBset('funcionarios', lista); }
+  }
+  let ocorrencias = DBget('ocorrencias');
+  ocorrencias.push(o);
+  DBset('ocorrencias', ocorrencias);
+  fecharModal('modal-ocor');
+  toast('Ocorrência lançada!');
+  renderTudo();
+}
+function renderOcorrencias(){
+  const filtro = document.getElementById('ocor-filtro-tipo').value;
+  const funcionarios = DBget('funcionarios');
+  function nomeDe(id){ const f = funcionarios.find(function(x){ return x.id===id; }); return f ? f.nome : '—'; }
+  let lista = DBget('ocorrencias').filter(function(o){ return !filtro || o.tipo===filtro; })
+    .sort(function(a,b){ return b.dataInicio.localeCompare(a.dataInicio); });
+  const tbody = document.getElementById('ocor-tbody');
+  if(!lista.length){ tbody.innerHTML = '<tr><td colspan="6" class="vazio">Nenhuma ocorrência lançada.</td></tr>'; return; }
+  tbody.innerHTML = lista.map(function(o){
+    return '<tr>'+
+      '<td>'+nomeDe(o.funcionarioId)+'</td>'+
+      '<td>'+tipoLabel(o.tipo)+'</td>'+
+      '<td>'+formatarDataBR(o.dataInicio)+'</td>'+
+      '<td>'+(o.tipo==='rescisao' ? ('Pgto: '+formatarDataBR(o.dataPagamento)) : (o.dataFim?formatarDataBR(o.dataFim):'—'))+'</td>'+
+      '<td>'+(o.motivo||'—')+'</td>'+
+      '<td><button class="btn btn-outline btn-sm" onclick="excluirOcorrencia(\''+o.id+'\')">Excluir</button></td>'+
+    '</tr>';
+  }).join('');
+}
+function excluirOcorrencia(id){
+  let lista = DBget('ocorrencias').filter(function(o){ return o.id!==id; });
+  DBset('ocorrencias', lista);
+  toast('Ocorrência excluída.');
+  renderTudo();
+}
+
+// ================= FERIAS =================
+function calcularFerias(f){
+  const inicio = f.periodoFeriasInicio || f.dataAdmissao;
+  if(!inicio) return null;
+  const vencimento = somarMeses(inicio, 12);
+  const dias = diffDias(hojeISO(), vencimento);
+  let situacao = 'ok', label = 'No prazo';
+  if(dias < 0){ situacao='vencida'; label='Vencida'; }
+  else if(dias <= 30){ situacao='alerta'; label='Vence em '+dias+' dia(s)'; }
+  return { inicio, vencimento, dias, situacao, label };
+}
+function ajustarPeriodoFerias(id, novaData){
+  let lista = DBget('funcionarios');
+  const idx = lista.findIndex(function(f){ return f.id===id; });
+  if(idx<0 || !novaData) return;
+  lista[idx].periodoFeriasInicio = novaData;
+  DBset('funcionarios', lista);
+  toast('Início do período de férias ajustado.');
+  renderTudo();
+}
+function registrarFeriasGozadas(id){
+  let lista = DBget('funcionarios');
+  const idx = lista.findIndex(function(f){ return f.id===id; });
+  if(idx<0) return;
+  const f = lista[idx];
+  const info = calcularFerias(f);
+  f.periodoFeriasInicio = info ? info.vencimento : hojeISO();
+  DBset('funcionarios', lista);
+  toast('Férias registradas como gozadas.');
+  renderTudo();
+}
+function renderFerias(){
+  const lista = DBget('funcionarios').filter(function(f){ return f.status!=='desligado' && f.dataAdmissao; })
+    .sort(function(a,b){ return (a.nome||'').localeCompare(b.nome||''); });
+  const tbody = document.getElementById('ferias-tbody');
+  if(!lista.length){ tbody.innerHTML = '<tr><td colspan="6" class="vazio">Nenhum funcionário com data de admissão cadastrada.</td></tr>'; return; }
+  tbody.innerHTML = lista.map(function(f){
+    const info = calcularFerias(f);
+    if(!info) return '';
+    const cor = info.situacao==='vencida' ? 'badge-desligado' : (info.situacao==='alerta' ? 'badge-pendente' : 'badge-ativo');
+    return '<tr>'+
+      '<td>'+f.nome+'</td>'+
+      '<td>'+formatarDataBR(f.dataAdmissao)+'</td>'+
+      '<td><input type="date" value="'+info.inicio+'" style="padding:5px 7px;border:1px solid var(--borda-forte);border-radius:6px;font-size:.82rem" onchange="ajustarPeriodoFerias(\''+f.id+'\', this.value)"></td>'+
+      '<td>'+formatarDataBR(info.vencimento)+'</td>'+
+      '<td><span class="badge '+cor+'">'+info.label+'</span></td>'+
+      '<td><button class="btn btn-outline btn-sm" onclick="registrarFeriasGozadas(\''+f.id+'\')">Registrar gozo</button></td>'+
+    '</tr>';
+  }).join('');
+}
+
+// ================= MURAL =================
+function postarMural(origem){
+  const nomeEl = document.getElementById(origem==='dash' ? 'mural-nome-dash' : 'mural-nome');
+  const msgEl = document.getElementById(origem==='dash' ? 'mural-msg-dash' : 'mural-msg');
+  const nome = nomeEl.value.trim(), msg = msgEl.value.trim();
+  if(!nome || !msg){ toast('Preencha nome e recado.'); return; }
+  let lista = DBget('mural');
+  lista.unshift({ id: uid(), nome, mensagem: msg, data: new Date().toLocaleString('pt-BR') });
+  DBset('mural', lista);
+  nomeEl.value=''; msgEl.value='';
+  renderMural();
+  toast('Recado postado!');
+}
+function renderMural(){
+  const lista = DBget('mural');
+  const html = !lista.length ? '<div class="mural-vazio">Nenhum recado no mural.</div>' :
+    lista.slice(0,30).map(function(m){
+      return '<div class="mural-item"><span class="nome">'+m.nome+'</span><span class="data">'+m.data+'</span>'+
+        (m.editado ? '<span class="editado-tag">(editado)</span>' : '')+
+        '<div class="msg">'+m.mensagem+'</div>'+
+        '<div class="mural-acoes">'+
+          '<button class="mural-acao" onclick="editarMural(\''+m.id+'\')">Editar</button>'+
+          '<button class="mural-acao" onclick="excluirMural(\''+m.id+'\')">Excluir</button>'+
+        '</div></div>';
+    }).join('');
+  document.getElementById('mural-lista-dash').innerHTML = html;
+  document.getElementById('mural-lista-full').innerHTML = html;
+}
+function editarMural(id){
+  let lista = DBget('mural');
+  const item = lista.find(function(m){ return m.id===id; });
+  if(!item) return;
+  const novo = window.prompt('Editar recado:', item.mensagem);
+  if(novo===null || !novo.trim()) return;
+  item.mensagem = novo.trim();
+  item.editado = true;
+  DBset('mural', lista);
+  renderMural();
+  toast('Recado atualizado!');
+}
+function excluirMural(id){
+  if(!window.confirm('Excluir este recado?')) return;
+  const lista = DBget('mural').filter(function(m){ return m.id!==id; });
+  DBset('mural', lista);
+  renderMural();
+  toast('Recado excluído!');
+}
+
+// ================= DASHBOARD =================
+function renderDashboard(){
+  const funcionarios = DBget('funcionarios');
+  const ocorrencias = DBget('ocorrencias');
+  const ativos = funcionarios.filter(function(f){ return f.status==='ativo'; }).length;
+  const contratando = funcionarios.filter(function(f){ return f.status==='contratando'; }).length;
+  const afastadosHoje = ocorrencias.filter(function(o){
+    return (o.tipo==='afastamento'||o.tipo==='suspensao') && o.dataInicio<=hojeISO() && (!o.dataFim || o.dataFim>=hojeISO());
+  }).length;
+  const feriasAlerta = funcionarios.filter(function(f){
+    if(f.status==='desligado') return false;
+    const info = calcularFerias(f);
+    return info && (info.situacao==='alerta' || info.situacao==='vencida');
+  }).length;
+
+  document.getElementById('dash-cards').innerHTML =
+    '<div class="mini-card"><div class="lbl">Funcionários ativos</div><div class="val">'+ativos+'</div></div>'+
+    '<div class="mini-card"><div class="lbl">Em contratação</div><div class="val">'+contratando+'</div></div>'+
+    '<div class="mini-card '+(afastadosHoje?'alerta':'ok')+'"><div class="lbl">Afastados/suspensos hoje</div><div class="val">'+afastadosHoje+'</div></div>'+
+    '<div class="mini-card '+(feriasAlerta?'alerta':'ok')+'"><div class="lbl">Férias vencendo (30d)</div><div class="val">'+feriasAlerta+'</div></div>';
+
+  const alertas = [];
+  ocorrencias.filter(function(o){ return o.tipo==='rescisao' && !o.avisado; }).forEach(function(o){
+    const f = funcionarios.find(function(x){ return x.id===o.funcionarioId; });
+    if(!f) return;
+    const dias = diffDias(hojeISO(), o.dataPagamento);
+    if(dias<=2){
+      const msg = 'Olá '+f.nome+', referente ao seu desligamento em '+formatarDataBR(o.dataInicio)+', o pagamento da rescisão está previsto para '+formatarDataBR(o.dataPagamento)+'. Qualquer dúvida estamos à disposição.';
+      alertas.push('<div class="alerta-linha"><div class="alerta-txt">Pagamento de rescisão — <b>'+f.nome+'</b> — previsto '+formatarDataBR(o.dataPagamento)+'</div>'+
+        '<a class="btn btn-wpp btn-sm" target="_blank" href="'+linkWhats(f.telefone,msg)+'">Enviar WhatsApp</a></div>');
+    }
+  });
+  funcionarios.filter(function(f){ return f.status!=='desligado'; }).forEach(function(f){
+    const info = calcularFerias(f);
+    if(info && info.situacao==='alerta'){
+      const msg = 'Olá '+f.nome+', passando para avisar que suas férias vencem em '+formatarDataBR(info.vencimento)+'. Vamos combinar o período?';
+      alertas.push('<div class="alerta-linha"><div class="alerta-txt">Férias vencendo — <b>'+f.nome+'</b> — '+info.label+'</div>'+
+        '<a class="btn btn-wpp btn-sm" target="_blank" href="'+linkWhats(f.telefone,msg)+'">Enviar WhatsApp</a></div>');
+    }
+  });
+  document.getElementById('dash-alertas').innerHTML = alertas.length ? alertas.join('') : '<div class="vazio">Nenhum aviso pendente.</div>';
+}
+
+// ================= RENDER GERAL =================
+function renderTudo(){
+  renderDashboard();
+  renderFuncionarios();
+  renderOcorrencias();
+  renderFerias();
+  renderMural();
+}
+function iniciarApp(){
+  seedFuncionariosSeNecessario();
+  renderTudo();
+  carregarNuvem();
+}
+</script>
+</body>
+</html>
