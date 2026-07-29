@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal do Colaborador · Pão & Tradição</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  :root{
+    --azul:#13215E; --azul-2:#1c2f7a; --ouro:#EFAD4C; --ouro-claro:#FBF3E8;
+    --creme:#F5F0DC; --texto-2:#5B7184; --texto-3:#8b95a8;
+    --borda:#e9e6da; --borda-forte:#d8d3c0;
+    --verde:#1D9E75; --vermelho:#C0392B;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Inter',Arial,sans-serif;background:var(--creme);color:var(--azul);min-height:100vh;-webkit-font-smoothing:antialiased}
+  .topo-marca{background:var(--azul);padding:1.4rem 1.2rem;text-align:center;position:relative;overflow:hidden}
+  .topo-marca::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:4px;background:linear-gradient(90deg,var(--ouro),#f7cf8a,var(--ouro))}
+  .topo-marca h1{color:#fff;font-size:1.15rem;margin:0;font-weight:800;letter-spacing:.02em}
+  .topo-marca .sub{color:var(--ouro);font-size:.76rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+  .wrap{max-width:520px;margin:0 auto;padding:1.6rem 1.1rem 3rem}
+  .card{background:#fff;border-radius:14px;padding:1.6rem;box-shadow:0 2px 10px rgba(19,33,94,.07);margin-bottom:1.1rem;border:1px solid var(--borda)}
+  label{display:block;font-size:.72rem;font-weight:700;color:var(--azul);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem}
+  input{width:100%;padding:12px 13px;border:1px solid var(--borda-forte);border-radius:9px;font-size:.95rem;margin-bottom:1.1rem;font-family:inherit;color:var(--azul);background:#fcfbf7;transition:border-color .15s}
+  input:focus{outline:none;border-color:var(--ouro);background:#fff}
+  button{background:var(--azul);color:#fff;border:none;border-radius:9px;padding:13px 18px;font-size:.92rem;font-weight:700;cursor:pointer;width:100%;font-family:inherit;transition:background .15s}
+  button:hover{background:var(--azul-2)}
+  button.outline{background:#fff;color:var(--azul);border:1px solid var(--borda-forte)}
+  button.outline:hover{background:var(--ouro-claro)}
+  .erro{color:var(--vermelho);font-size:.83rem;margin-bottom:.7rem;min-height:1rem;font-weight:500}
+  .login-hint{font-size:.78rem;color:var(--texto-2);text-align:center;margin-top:.9rem;line-height:1.5}
+
+  .topo-user{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem}
+  .topo-user .ola{font-size:.78rem;color:var(--texto-2)}
+  .topo-user .nome{font-size:1.05rem;font-weight:700;color:var(--azul)}
+  .sair{font-size:.8rem;color:var(--texto-2);cursor:pointer;text-decoration:underline;white-space:nowrap}
+
+  .abas{display:flex;gap:.4rem;margin-bottom:1.1rem;background:#fff;border-radius:11px;padding:5px;border:1px solid var(--borda)}
+  .aba-btn{flex:1;text-align:center;padding:9px 8px;border-radius:8px;font-size:.83rem;font-weight:700;color:var(--texto-2);cursor:pointer;transition:all .15s}
+  .aba-btn.ativa{background:var(--azul);color:#fff}
+
+  .doc-tipo{font-size:.74rem;font-weight:800;color:var(--ouro);margin:1.2rem 0 .6rem;text-transform:uppercase;letter-spacing:.06em}
+  .doc-tipo:first-child{margin-top:0}
+  .doc-item{display:flex;justify-content:space-between;align-items:center;gap:.7rem;padding:.75rem 0;border-bottom:1px solid var(--borda);font-size:.92rem}
+  .doc-item:last-child{border-bottom:none}
+  .doc-item .ref{font-weight:600}
+  .doc-item a{color:var(--azul);font-weight:700;text-decoration:none;border:1px solid var(--borda-forte);border-radius:8px;padding:6px 14px;font-size:.8rem;white-space:nowrap;transition:all .15s}
+  .doc-item a:hover{background:var(--ouro-claro);border-color:var(--ouro)}
+
+  .ocor-item{padding:.8rem 0;border-bottom:1px solid var(--borda)}
+  .ocor-item:last-child{border-bottom:none}
+  .ocor-tag{display:inline-block;font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:3px 9px;border-radius:20px;background:var(--ouro-claro);color:#8a5a00;margin-bottom:.4rem}
+  .ocor-data{font-size:.78rem;color:var(--texto-2)}
+  .ocor-motivo{font-size:.88rem;margin-top:.25rem}
+
+  .vazio{color:var(--texto-3);font-size:.86rem;padding:1.4rem 0;text-align:center}
+  .rodape{text-align:center;font-size:.72rem;color:var(--texto-3);margin-top:1.6rem}
+</style>
+</head>
+<body>
+
+<div class="topo-marca">
+  <h1>Pão &amp; Tradição</h1>
+  <div class="sub">Portal do Colaborador</div>
+</div>
+
+<div class="wrap">
+
+  <div class="card" id="tela-login">
+    <div class="erro" id="login-erro"></div>
+    <form id="form-login" onsubmit="event.preventDefault(); fazerLoginPortal();">
+      <label>Nome completo</label>
+      <input type="text" id="login-nome" name="username" placeholder="Digite seu nome completo" autocomplete="username">
+      <label>CPF</label>
+      <input type="password" id="login-cpf" name="password" placeholder="Só números" inputmode="numeric" autocomplete="current-password">
+      <button type="submit">Entrar</button>
+    </form>
+    <div class="login-hint">Use seu nome completo e o CPF (só números) para entrar.<br>Em caso de dúvida, procure o RH.</div>
+  </div>
+
+  <div id="tela-doc" style="display:none">
+    <div class="topo-user">
+      <div>
+        <div class="ola">Olá,</div>
+        <div class="nome" id="doc-nome"></div>
+      </div>
+      <span class="sair" onclick="sairPortal()">Sair</span>
+    </div>
+
+    <div class="abas">
+      <div class="aba-btn ativa" id="aba-documentos" onclick="mudarAbaPortal('documentos')">Meus documentos</div>
+      <div class="aba-btn" id="aba-ocorrencias" onclick="mudarAbaPortal('ocorrencias')">Ocorrências</div>
+    </div>
+
+    <div class="card" id="painel-documentos">
+      <div id="doc-lista"></div>
+    </div>
+
+    <div class="card" id="painel-ocorrencias" style="display:none">
+      <div id="ocor-lista"></div>
+    </div>
+
+    <div class="card">
+      <label>Trocar senha</label>
+      <input type="password" id="nova-senha" placeholder="Nova senha (mínimo 6 caracteres)">
+      <button class="outline" onclick="trocarSenhaPortal()">Salvar nova senha</button>
+      <div class="erro" id="senha-status"></div>
+    </div>
+
+    <div class="rodape">Pão &amp; Tradição · Padaria &amp; Confeitaria</div>
+  </div>
+
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, signOut, updatePassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDyxGKkYEVxqQxW45nAR5ElQPWHh6SgSbU",
+    authDomain: "gestao-de-rh-paoetradicao.firebaseapp.com",
+    projectId: "gestao-de-rh-paoetradicao",
+    storageBucket: "gestao-de-rh-paoetradicao.firebasestorage.app",
+    messagingSenderId: "361260253500",
+    appId: "1:361260253500:web:a2cc3fa027576ef9cf9e39"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const dbF = getFirestore(app);
+
+  // Só estes três tipos de documento aparecem no portal — notificações internas não são exibidas aqui.
+  const TIPOS = {
+    holerite_mensal: 'Holerite mensal',
+    holerite_ferias: 'Holerite/Recibo de férias',
+    aviso_ferias: 'Aviso de férias'
+  };
+  const TIPOS_OCORRENCIA = {
+    atestado: 'Atestado', suspensao: 'Suspensão', afastamento: 'Afastamento',
+    advertencia: 'Advertência', rescisao: 'Rescisão', falta_registro_ponto: 'Falta de registro de ponto'
+  };
+
+  function normalizar(nome){
+    return String(nome||'')
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g,'');
+  }
+  function formatarDataBR(iso){
+    if(!iso) return '—';
+    const p = iso.split('-');
+    return p.length===3 ? (p[2]+'/'+p[1]+'/'+p[0]) : iso;
+  }
+
+  window.baixarDocumento = async function(ev, url, nomeArquivo){
+    ev.preventDefault();
+    try{
+      const resp = await fetch(url);
+      const blob = await resp.blob();
+      const a = document.createElement('a');
+      const objUrl = URL.createObjectURL(blob);
+      a.href = objUrl;
+      a.download = (nomeArquivo||'documento').replace(/[\\/:*?"<>|]/g,'').trim()+'.pdf';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(objUrl); }, 10000);
+    }catch(e){
+      window.open(url, '_blank'); // se der erro (ex: rede), pelo menos abre o PDF
+    }
+  };
+  window.mudarAbaPortal = function(aba){
+    document.getElementById('aba-documentos').classList.toggle('ativa', aba==='documentos');
+    document.getElementById('aba-ocorrencias').classList.toggle('ativa', aba==='ocorrencias');
+    document.getElementById('painel-documentos').style.display = aba==='documentos' ? '' : 'none';
+    document.getElementById('painel-ocorrencias').style.display = aba==='ocorrencias' ? '' : 'none';
+  };
+
+  window.fazerLoginPortal = async function(){
+    const nome = document.getElementById('login-nome').value;
+    const cpf = document.getElementById('login-cpf').value.replace(/\D/g,'');
+    const erro = document.getElementById('login-erro');
+    erro.textContent = '';
+    if(!nome.trim() || cpf.length!==11){ erro.textContent='Preencha o nome e o CPF (11 números).'; return; }
+    const email = normalizar(nome)+'@paoetradicao-rh.local';
+    try{
+      await signInWithEmailAndPassword(auth, email, cpf);
+    }catch(e){
+      erro.textContent = 'Nome ou CPF incorretos, ou o acesso ainda não foi criado pelo RH.';
+    }
+  };
+  window.sairPortal = function(){ signOut(auth).then(function(){ location.reload(); }); };
+  window.trocarSenhaPortal = async function(){
+    const nova = document.getElementById('nova-senha').value;
+    const status = document.getElementById('senha-status');
+    status.style.color = 'var(--vermelho)';
+    if(!nova || nova.length<6){ status.textContent='A nova senha precisa ter pelo menos 6 caracteres.'; return; }
+    try{
+      await updatePassword(auth.currentUser, nova);
+      status.style.color = 'var(--verde)';
+      status.textContent = 'Senha alterada! Use essa nova senha da próxima vez que entrar.';
+      document.getElementById('nova-senha').value = '';
+    }catch(e){
+      status.textContent = 'Não foi possível trocar a senha agora. Saia, entre de novo e tente outra vez.';
+    }
+  };
+
+  onAuthStateChanged(auth, async function(user){
+    if(!user){
+      document.getElementById('tela-login').style.display = '';
+      document.getElementById('tela-doc').style.display = 'none';
+      return;
+    }
+    document.getElementById('tela-login').style.display = 'none';
+    document.getElementById('tela-doc').style.display = '';
+    const docCont = document.getElementById('doc-lista');
+    const ocorCont = document.getElementById('ocor-lista');
+    let perfilSnap;
+    try{ perfilSnap = await getDoc(doc(dbF,'portal_funcionarios', user.uid)); }
+    catch(e){ docCont.innerHTML = '<div class="vazio">Não foi possível carregar seus dados agora. Tente novamente em instantes.</div>'; return; }
+    if(!perfilSnap.exists()){
+      document.getElementById('doc-nome').textContent = '';
+      docCont.innerHTML = '<div class="vazio">Seu cadastro ainda não está pronto. Fale com o RH.</div>';
+      return;
+    }
+    const perfil = perfilSnap.data();
+    document.getElementById('doc-nome').textContent = perfil.nome || '';
+
+    // Documentos
+    const qDocs = query(collection(dbF,'portal_documentos'), where('funcionarioId','==', perfil.funcionarioId));
+    const snapDocs = await getDocs(qDocs);
+    const docs = [];
+    snapDocs.forEach(function(d){ docs.push(d.data()); });
+    if(!docs.length){
+      docCont.innerHTML = '<div class="vazio">Nenhum documento disponível ainda.</div>';
+    } else {
+      const grupos = {};
+      docs.forEach(function(d){ (grupos[d.tipo]=grupos[d.tipo]||[]).push(d); });
+      let html = '';
+      Object.keys(TIPOS).forEach(function(tipo){
+        if(!grupos[tipo] || !grupos[tipo].length) return;
+        html += '<div class="doc-tipo">'+TIPOS[tipo]+'</div>';
+        grupos[tipo].sort(function(a,b){ return (b.enviadoEm||'').localeCompare(a.enviadoEm||''); }).forEach(function(d){
+          html += '<div class="doc-item"><span class="ref">'+(d.referencia||'—')+'</span><span style="display:flex;gap:.5rem"><a href="'+d.url+'" target="_blank" rel="noopener">Ver</a><a href="#" onclick="baixarDocumento(event,\''+d.url+'\',\''+(TIPOS[tipo]||'documento')+' - '+(d.referencia||'')+'\')">Baixar</a></span></div>';
+        });
+      });
+      docCont.innerHTML = html || '<div class="vazio">Nenhum documento disponível ainda.</div>';
+    }
+
+    // Ocorrências
+    const qOcor = query(collection(dbF,'portal_ocorrencias'), where('funcionarioId','==', perfil.funcionarioId));
+    const snapOcor = await getDocs(qOcor);
+    const ocors = [];
+    snapOcor.forEach(function(d){ ocors.push(d.data()); });
+    if(!ocors.length){
+      ocorCont.innerHTML = '<div class="vazio">Nenhuma ocorrência registrada.</div>';
+    } else {
+      ocors.sort(function(a,b){ return (b.dataInicio||'').localeCompare(a.dataInicio||''); });
+      ocorCont.innerHTML = ocors.map(function(o){
+        return '<div class="ocor-item">'+
+          '<span class="ocor-tag">'+(TIPOS_OCORRENCIA[o.tipo]||o.tipo)+'</span>'+
+          '<div class="ocor-data">'+formatarDataBR(o.dataInicio)+(o.dataFim?(' a '+formatarDataBR(o.dataFim)):'')+'</div>'+
+          (o.motivo?('<div class="ocor-motivo">'+o.motivo+'</div>'):'')+
+        '</div>';
+      }).join('');
+    }
+  });
+</script>
+</body>
+</html>
