@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal do Colaborador · Pão & Tradição</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --azul:#13215E; --azul-2:#1c2f7a; --ouro:#EFAD4C; --ouro-claro:#FBF3E8;
+    --creme:#F5F0DC; --texto-2:#5B7184; --texto-3:#8b95a8;
+    --borda:#e9e6da; --borda-forte:#d8d3c0;
+    --verde:#1D9E75; --vermelho:#C0392B;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Inter',Arial,sans-serif;background:var(--creme);color:var(--azul);min-height:100vh;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{margin:0;color:var(--azul);font-weight:700}
+  a{color:inherit}
+
+  .topo-marca{background:var(--azul);padding:1.4rem 1.2rem;text-align:center;position:relative;overflow:hidden}
+  .topo-marca::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:4px;background:linear-gradient(90deg,var(--ouro),var(--ouro-claro),var(--ouro))}
+  .topo-marca h1{color:#fff;font-size:1.15rem;font-weight:800;letter-spacing:.02em}
+  .topo-marca .sub{color:var(--ouro);font-size:.76rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+
+  .wrap{max-width:520px;margin:0 auto;padding:1.6rem 1.1rem 3rem}
+
+  .card{background:#fff;border-radius:14px;padding:1.6rem;box-shadow:0 2px 10px rgba(19,33,94,.07);margin-bottom:1.1rem;border:1px solid var(--borda)}
+
+  label{display:block;font-size:.72rem;font-weight:700;color:var(--azul);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem}
+  input{width:100%;padding:12px 13px;border:1px solid var(--borda-forte);border-radius:9px;font-size:.95rem;margin-bottom:1.1rem;font-family:inherit;color:var(--azul);background:#fcfbf7;transition:border-color .15s}
+  input:focus{outline:none;border-color:var(--ouro);background:#fff}
+
+  .btn{padding:9px 17px;border:none;border-radius:9px;font-weight:700;font-size:.85rem;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;transition:background .15s}
+  .btn-azul{background:var(--azul);color:#fff}
+  .btn-azul:hover{background:var(--azul-2)}
+  .btn-outline{background:#fff;border:1px solid var(--borda-forte);color:var(--azul)}
+  .btn-outline:hover{background:var(--ouro-claro)}
+  .btn-sm{padding:6px 12px;font-size:.76rem}
+  .btn-full{width:100%}
+
+  .erro{color:var(--vermelho);font-size:.83rem;margin-bottom:.7rem;min-height:1rem;font-weight:500}
+  .login-hint{font-size:.78rem;color:var(--texto-2);text-align:center;margin-top:.9rem;line-height:1.5}
+
+  .topo-user{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:1.2rem}
+  .topo-user .top-sub{color:var(--texto-2);font-size:.78rem;margin:0 0 2px}
+  .topo-user h1{font-size:1.3rem}
+
+  .abas{display:flex;gap:.4rem;margin-bottom:1.1rem;background:#fff;border-radius:11px;padding:5px;border:1px solid var(--borda)}
+  .aba-btn{flex:1;text-align:center;padding:9px 8px;border-radius:8px;font-size:.83rem;font-weight:700;color:var(--texto-2);cursor:pointer;transition:all .15s}
+  .aba-btn.ativa{background:var(--azul);color:#fff}
+
+  .doc-tipo{font-size:.74rem;font-weight:800;color:var(--ouro);margin:1.2rem 0 .6rem;text-transform:uppercase;letter-spacing:.06em}
+  .doc-tipo:first-child{margin-top:0}
+  .doc-item{display:flex;justify-content:space-between;align-items:center;gap:.7rem;padding:.75rem 0;border-bottom:1px solid var(--borda);font-size:.92rem}
+  .doc-item:last-child{border-bottom:none}
+  .doc-item .ref{font-weight:600}
+
+  .ocor-item{padding:.8rem 0;border-bottom:1px solid var(--borda)}
+  .ocor-item:last-child{border-bottom:none}
+  .ocor-tag{display:inline-block;font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:3px 9px;border-radius:20px;background:var(--ouro-claro);color:#8a5a00;margin-bottom:.4rem}
+  .ocor-data{font-size:.78rem;color:var(--texto-2)}
+  .ocor-motivo{font-size:.88rem;margin-top:.25rem}
+
+  .vazio{color:var(--texto-3);font-size:.86rem;padding:1.4rem 0;text-align:center}
+  .rodape{text-align:center;font-size:.72rem;color:var(--texto-3);margin-top:1.6rem}
+
+  /* Visualizador de PDF embutido (evita o navegador tratar como download) */
+  #visualizador-overlay{position:fixed;inset:0;background:rgba(19,33,94,.85);z-index:200;display:none;flex-direction:column}
+  #visualizador-overlay.aberto{display:flex}
+  .visualizador-topo{display:flex;justify-content:space-between;align-items:center;padding:.8rem 1rem;background:var(--azul)}
+  .visualizador-topo span{color:#fff;font-weight:600;font-size:.9rem}
+  #visualizador-overlay iframe{flex:1;width:100%;border:none;background:#fff}
+</style>
+</head>
+<body>
+
+<div class="topo-marca">
+  <h1>Pão &amp; Tradição</h1>
+  <div class="sub">Portal do Colaborador</div>
+</div>
+
+<div class="wrap">
+
+  <div class="card" id="tela-login">
+    <div class="erro" id="login-erro"></div>
+    <form id="form-login" onsubmit="event.preventDefault(); fazerLoginPortal();">
+      <label>Nome completo</label>
+      <input type="text" id="login-nome" name="username" placeholder="Digite seu nome completo" autocomplete="username">
+      <label>CPF</label>
+      <input type="password" id="login-cpf" name="password" placeholder="Só números" inputmode="numeric" autocomplete="current-password">
+      <button type="submit" class="btn btn-azul btn-full">Entrar</button>
+    </form>
+    <div class="login-hint">Use seu nome completo e o CPF (só números) para entrar.<br>Em caso de dúvida, procure o RH.</div>
+  </div>
+
+  <div id="tela-doc" style="display:none">
+    <div class="topo-user">
+      <div>
+        <div class="top-sub">Olá,</div>
+        <h1 id="doc-nome"></h1>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="sairPortal()">Sair</button>
+    </div>
+
+    <div class="abas">
+      <div class="aba-btn ativa" id="aba-documentos" onclick="mudarAbaPortal('documentos')">Meus documentos</div>
+      <div class="aba-btn" id="aba-ocorrencias" onclick="mudarAbaPortal('ocorrencias')">Ocorrências</div>
+    </div>
+
+    <div class="card" id="painel-documentos">
+      <div id="doc-lista"></div>
+    </div>
+
+    <div class="card" id="painel-ocorrencias" style="display:none">
+      <div id="ocor-lista"></div>
+    </div>
+
+    <div class="card">
+      <label>Trocar senha</label>
+      <input type="password" id="nova-senha" placeholder="Nova senha (mínimo 6 caracteres)">
+      <button class="btn btn-outline btn-full" onclick="trocarSenhaPortal()">Salvar nova senha</button>
+      <div class="erro" id="senha-status" style="margin-top:.6rem;margin-bottom:0"></div>
+    </div>
+
+    <div class="rodape">Pão &amp; Tradição · Padaria &amp; Confeitaria</div>
+  </div>
+
+</div>
+
+<div id="visualizador-overlay">
+  <div class="visualizador-topo">
+    <span id="visualizador-titulo">Documento</span>
+    <button class="btn btn-outline btn-sm" style="border-color:#fff;color:#fff" onclick="fecharVisualizador()">Fechar</button>
+  </div>
+  <iframe id="visualizador-iframe"></iframe>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, signOut, updatePassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDyxGKkYEVxqQxW45nAR5ElQPWHh6SgSbU",
+    authDomain: "gestao-de-rh-paoetradicao.firebaseapp.com",
+    projectId: "gestao-de-rh-paoetradicao",
+    storageBucket: "gestao-de-rh-paoetradicao.firebasestorage.app",
+    messagingSenderId: "361260253500",
+    appId: "1:361260253500:web:a2cc3fa027576ef9cf9e39"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const dbF = getFirestore(app);
+
+  // Só estes três tipos de documento aparecem no portal — notificações internas não são exibidas aqui.
+  const TIPOS = {
+    holerite_mensal: 'Holerite mensal',
+    holerite_ferias: 'Holerite/Recibo de férias',
+    aviso_ferias: 'Aviso de férias'
+  };
+  const TIPOS_OCORRENCIA = {
+    atestado: 'Atestado', suspensao: 'Suspensão', afastamento: 'Afastamento',
+    advertencia: 'Advertência', rescisao: 'Rescisão', falta_registro_ponto: 'Falta de registro de ponto'
+  };
+
+  function normalizar(nome){
+    return String(nome||'')
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g,'');
+  }
+  function formatarDataBR(iso){
+    if(!iso) return '—';
+    const p = iso.split('-');
+    return p.length===3 ? (p[2]+'/'+p[1]+'/'+p[0]) : iso;
+  }
+  function base64ParaBlob(base64, tipoMime){
+    const binario = atob(base64);
+    const bytes = new Uint8Array(binario.length);
+    for(let i=0;i<binario.length;i++) bytes[i]=binario.charCodeAt(i);
+    return new Blob([bytes], { type: tipoMime||'application/pdf' });
+  }
+
+  window._meusDocumentos = [];
+
+  // "Ver" agora abre o PDF dentro da própria página (num visualizador embutido),
+  // em vez de window.open numa aba nova — no celular, abrir um blob: numa aba nova
+  // faz o navegador baixar o arquivo em vez de mostrar; embutido na mesma página, ele exibe certo.
+  window.verDocumentoPortal = function(idx){
+    const d = window._meusDocumentos[idx];
+    if(!d || !d.base64) return;
+    const url = URL.createObjectURL(base64ParaBlob(d.base64));
+    document.getElementById('visualizador-titulo').textContent = d.referencia || 'Documento';
+    document.getElementById('visualizador-iframe').src = url;
+    document.getElementById('visualizador-overlay').classList.add('aberto');
+  };
+  window.fecharVisualizador = function(){
+    document.getElementById('visualizador-overlay').classList.remove('aberto');
+    document.getElementById('visualizador-iframe').src = '';
+  };
+  window.baixarDocumentoPortal = function(idx, ev){
+    if(ev) ev.preventDefault();
+    const d = window._meusDocumentos[idx];
+    if(!d || !d.base64) return;
+    const blob = base64ParaBlob(d.base64);
+    const a = document.createElement('a');
+    const objUrl = URL.createObjectURL(blob);
+    a.href = objUrl;
+    a.download = (d.nomeArquivo||'documento').replace(/[\\/:*?"<>|]/g,'').trim()+'.pdf';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(objUrl); }, 10000);
+  };
+  window.mudarAbaPortal = function(aba){
+    document.getElementById('aba-documentos').classList.toggle('ativa', aba==='documentos');
+    document.getElementById('aba-ocorrencias').classList.toggle('ativa', aba==='ocorrencias');
+    document.getElementById('painel-documentos').style.display = aba==='documentos' ? '' : 'none';
+    document.getElementById('painel-ocorrencias').style.display = aba==='ocorrencias' ? '' : 'none';
+  };
+
+  window.fazerLoginPortal = async function(){
+    const nome = document.getElementById('login-nome').value;
+    const cpf = document.getElementById('login-cpf').value.replace(/\D/g,'');
+    const erro = document.getElementById('login-erro');
+    erro.textContent = '';
+    if(!nome.trim() || cpf.length!==11){ erro.textContent='Preencha o nome e o CPF (11 números).'; return; }
+    const email = normalizar(nome)+'@paoetradicao-rh.local';
+    try{
+      await signInWithEmailAndPassword(auth, email, cpf);
+    }catch(e){
+      erro.textContent = 'Nome ou CPF incorretos, ou o acesso ainda não foi criado pelo RH.';
+    }
+  };
+  window.sairPortal = function(){ signOut(auth).then(function(){ location.reload(); }); };
+  window.trocarSenhaPortal = async function(){
+    const nova = document.getElementById('nova-senha').value;
+    const status = document.getElementById('senha-status');
+    status.style.color = 'var(--vermelho)';
+    if(!nova || nova.length<6){ status.textContent='A nova senha precisa ter pelo menos 6 caracteres.'; return; }
+    try{
+      await updatePassword(auth.currentUser, nova);
+      status.style.color = 'var(--verde)';
+      status.textContent = 'Senha alterada! Use essa nova senha da próxima vez que entrar.';
+      document.getElementById('nova-senha').value = '';
+    }catch(e){
+      status.textContent = 'Não foi possível trocar a senha agora. Saia, entre de novo e tente outra vez.';
+    }
+  };
+
+  onAuthStateChanged(auth, async function(user){
+    if(!user){
+      document.getElementById('tela-login').style.display = '';
+      document.getElementById('tela-doc').style.display = 'none';
+      return;
+    }
+    document.getElementById('tela-login').style.display = 'none';
+    document.getElementById('tela-doc').style.display = '';
+    const docCont = document.getElementById('doc-lista');
+    const ocorCont = document.getElementById('ocor-lista');
+    let perfilSnap;
+    try{ perfilSnap = await getDoc(doc(dbF,'portal_funcionarios', user.uid)); }
+    catch(e){ docCont.innerHTML = '<div class="vazio">Não foi possível carregar seus dados agora. Tente novamente em instantes.</div>'; return; }
+    if(!perfilSnap.exists()){
+      document.getElementById('doc-nome').textContent = '';
+      docCont.innerHTML = '<div class="vazio">Seu cadastro ainda não está pronto. Fale com o RH.</div>';
+      return;
+    }
+    const perfil = perfilSnap.data();
+    document.getElementById('doc-nome').textContent = perfil.nome || '';
+
+    // Documentos
+    const qDocs = query(collection(dbF,'portal_documentos'), where('funcionarioId','==', perfil.funcionarioId));
+    const snapDocs = await getDocs(qDocs);
+    const docs = [];
+    snapDocs.forEach(function(d){ docs.push(d.data()); });
+    window._meusDocumentos = docs;
+    if(!docs.length){
+      docCont.innerHTML = '<div class="vazio">Nenhum documento disponível ainda.</div>';
+    } else {
+      const grupos = {};
+      docs.forEach(function(d, idx){ d._idx = idx; (grupos[d.tipo]=grupos[d.tipo]||[]).push(d); });
+      let html = '';
+      Object.keys(TIPOS).forEach(function(tipo){
+        if(!grupos[tipo] || !grupos[tipo].length) return;
+        html += '<div class="doc-tipo">'+TIPOS[tipo]+'</div>';
+        grupos[tipo].sort(function(a,b){ return (b.enviadoEm||'').localeCompare(a.enviadoEm||''); }).forEach(function(d){
+          html += '<div class="doc-item"><span class="ref">'+(d.referencia||'—')+'</span><span style="display:flex;gap:.5rem">'+
+            '<button class="btn btn-outline btn-sm" onclick="verDocumentoPortal('+d._idx+')">Ver</button>'+
+            '<button class="btn btn-outline btn-sm" onclick="baixarDocumentoPortal('+d._idx+',event)">Baixar</button>'+
+          '</span></div>';
+        });
+      });
+      docCont.innerHTML = html || '<div class="vazio">Nenhum documento disponível ainda.</div>';
+    }
+
+    // Ocorrências
+    const qOcor = query(collection(dbF,'portal_ocorrencias'), where('funcionarioId','==', perfil.funcionarioId));
+    const snapOcor = await getDocs(qOcor);
+    const ocors = [];
+    snapOcor.forEach(function(d){ ocors.push(d.data()); });
+    if(!ocors.length){
+      ocorCont.innerHTML = '<div class="vazio">Nenhuma ocorrência registrada.</div>';
+    } else {
+      ocors.sort(function(a,b){ return (b.dataInicio||'').localeCompare(a.dataInicio||''); });
+      ocorCont.innerHTML = ocors.map(function(o){
+        return '<div class="ocor-item">'+
+          '<span class="ocor-tag">'+(TIPOS_OCORRENCIA[o.tipo]||o.tipo)+'</span>'+
+          '<div class="ocor-data">'+formatarDataBR(o.dataInicio)+(o.dataFim?(' a '+formatarDataBR(o.dataFim)):'')+'</div>'+
+          (o.motivo?('<div class="ocor-motivo">'+o.motivo+'</div>'):'')+
+        '</div>';
+      }).join('');
+    }
+  });
+</script>
+</body>
+</html>
